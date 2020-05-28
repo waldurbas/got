@@ -107,29 +107,29 @@ func (p *Lgx) Printf(frm string, v ...interface{}) {
 
 // Print #
 func (p *Lgx) Print(v ...interface{}) {
-	p.write(fmt.Sprint(v...))
+	p.write(fmt.Sprintln(v...))
 }
 
 var std = New(os.Stderr, "", 0)
 
 // Print #
 func Print(v ...interface{}) {
-	std.write(fmt.Sprint(v...))
+	std.write(fmt.Sprintln(v...))
 }
 
 // PrintDebug #
 func PrintDebug(v ...interface{}) {
-	std.write("[DEBUG] " + fmt.Sprint(v...))
+	std.write("[DEBUG] " + fmt.Sprintln(v...))
 }
 
 // PrintInfo #
 func PrintInfo(v ...interface{}) {
-	std.write("[INFO] " + fmt.Sprint(v...))
+	std.write("[INFO] " + fmt.Sprintln(v...))
 }
 
 // PrintError #
 func PrintError(v ...interface{}) {
-	std.write("[ERROR] " + fmt.Sprint(v...))
+	std.write("[ERROR] " + fmt.Sprintln(v...))
 }
 
 // Printf #
