@@ -37,6 +37,7 @@
 - func UUID36 
 - func StripUUID36 
 - func ReverseString 
+- func IsHexString
 - func Md5HexString
 
 ### package dotenv
