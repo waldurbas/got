@@ -175,6 +175,27 @@ func UUID() []byte {
 	return r
 }
 
+// IsHexString #
+func IsHexString(s string) bool {
+	b := []byte(s)
+	le := len(b)
+	if (le % 2) != 0 {
+		return false
+	}
+
+	for i := 0; i < le; i++ {
+		ok := (b[i] >= '0' && b[i] <= '9') ||
+			(b[i] >= 'a' && b[i] <= 'f') ||
+			(b[i] >= 'A' && b[i] <= 'F')
+
+		if !ok {
+			return false
+		}
+	}
+
+	return true
+}
+
 // UUID36 #
 func UUID36(uid string) string {
 	suid := strings.Replace(uid, "-", "", -1)

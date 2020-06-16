@@ -37,7 +37,7 @@
 - func UUID36 
 - func StripUUID36 
 - func ReverseString 
-- func MD5HexString
+- func Md5HexString
 
 ### package dotenv
 #### .cnv einlesen
