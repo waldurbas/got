@@ -1,7 +1,7 @@
 package cnv
 
 // ----------------------------------------------------------------------------------
-// cnv.go (https://github.com/waldurbas/goTool)
+// cnv.go (https://github.com/waldurbas/got)
 // Copyright 2019,2020 by Waldemar Urbas
 //-----------------------------------------------------------------------------------
 // This Source Code Form is subject to the terms of the 'MIT License'
@@ -15,6 +15,7 @@ package cnv
 //-----------------------------------------------------------------------------------
 
 import (
+	"crypto/md5"
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
@@ -196,4 +197,10 @@ func ReverseString(s string) string {
 		r[i], r[j] = r[j], r[i]
 	}
 	return string(r)
+}
+
+// Md5HexString #
+func Md5HexString(b *[]byte) string {
+	chk := md5.Sum(*b)
+	return hex.EncodeToString(chk[:16])
 }

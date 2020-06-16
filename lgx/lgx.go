@@ -1,7 +1,7 @@
 package lgx
 
 // ----------------------------------------------------------------------------------
-// lgx.go (https://github.com/waldurbas/goTool)
+// lgx.go (https://github.com/waldurbas/got)
 // Copyright 2019,2020 by Waldemar Urbas
 //-----------------------------------------------------------------------------------
 // This Source Code Form is subject to the terms of the 'MIT License'
