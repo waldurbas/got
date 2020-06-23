@@ -11,6 +11,7 @@ package lgx
 // ----------------------------------------------------------------------------------
 // HISTORY
 //-----------------------------------------------------------------------------------
+// 2020.06.23 (wu) LgxDebug
 // 2020.03.11 (wu) env.GCP
 // 2020.02.10 (wu) Init
 //-----------------------------------------------------------------------------------
@@ -35,8 +36,9 @@ type Lgx struct {
 // LGX_STD #Standard mit Time
 // LGX_GCP #GoogleCloud ohne Time
 const (
-	LgxStd = 0
-	LgxGcp = 1
+	LgxStd   = 0
+	LgxGcp   = 1
+	LgxDebug = 2
 )
 
 // New #
@@ -119,6 +121,10 @@ func Print(v ...interface{}) {
 
 // PrintDebug #
 func PrintDebug(v ...interface{}) {
+	if (std.prop & LgxDebug) != LgxDebug {
+		return
+	}
+
 	std.write("[DEBUG] " + fmt.Sprintln(v...))
 }
 
@@ -139,6 +145,9 @@ func Printf(format string, v ...interface{}) {
 
 // PrintfDebug #
 func PrintfDebug(format string, v ...interface{}) {
+	if (std.prop & LgxDebug) != LgxDebug {
+		return
+	}
 	std.write("[DEBUG] " + fmt.Sprintf(format, v...))
 }
 
