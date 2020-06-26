@@ -119,11 +119,9 @@ func Print(v ...interface{}) {
 
 // PrintDebug #
 func PrintDebug(v ...interface{}) {
-	if !isDebug || (std.prop&LgxDebug) != LgxDebug {
-		return
+	if isDebug || (std.prop&LgxDebug) == LgxDebug {
+		std.write("[DEBUG] " + fmt.Sprintln(v...))
 	}
-
-	std.write("[DEBUG] " + fmt.Sprintln(v...))
 }
 
 // PrintInfo #
@@ -143,10 +141,9 @@ func Printf(format string, v ...interface{}) {
 
 // PrintfDebug #
 func PrintfDebug(format string, v ...interface{}) {
-	if !isDebug || (std.prop&LgxDebug) != LgxDebug {
-		return
+	if isDebug || (std.prop&LgxDebug) == LgxDebug {
+		std.write("[DEBUG] " + fmt.Sprintf(format, v...))
 	}
-	std.write("[DEBUG] " + fmt.Sprintf(format, v...))
 }
 
 // PrintfInfo #
