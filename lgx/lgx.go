@@ -20,17 +20,20 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
 
 // Lgx #
 type Lgx struct {
-	mu   sync.Mutex // ensures atomic writes; protects the following fields
-	pfx  string     // prefix to write at beginning of each line
-	prop int        // properties
-	out  io.Writer  // destination for output
-	buf  []byte
+	mu         sync.Mutex // ensures atomic writes; protects the following fields
+	prop       int        // properties
+	out        io.Writer  // destination for output
+	buf        []byte
+	logDir     string
+	logFilePfx string
 }
 
 // LGX_STD #Standard mit Time
@@ -39,11 +42,12 @@ const (
 	LgxStd   = 0
 	LgxGcp   = 1
 	LgxDebug = 2
+	LgxFile  = 4
 )
 
 // New #
-func New(out io.Writer, pfx string, prop int) *Lgx {
-	return &Lgx{out: out, prop: prop, pfx: setPfx(pfx)}
+func New(out io.Writer, prop int) *Lgx {
+	return &Lgx{out: out, prop: prop}
 }
 
 // SetOutput sets the output destination for the logger.
@@ -53,38 +57,19 @@ func (p *Lgx) SetOutput(w io.Writer) {
 	p.out = w
 }
 
-func setPfx(pfx string) string {
-	if len(pfx) > 0 {
-		return "[" + pfx + "] "
-	}
-
-	return ""
-}
-
-// SetPrefix #
-func (p *Lgx) SetPrefix(pfx string) {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-	p.pfx = setPfx(pfx)
-}
-
 func (p *Lgx) write(s string) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
 	p.buf = p.buf[:0]
 
+	t := time.Now()
+	sti := fmt.Sprintf("%d-%02d-%02d %02d:%02d:%02d ",
+		t.Year(), t.Month(), t.Day(),
+		t.Hour(), t.Minute(), t.Second())
+
 	if p.prop&LgxGcp == 0 {
-		t := time.Now()
-		ss := fmt.Sprintf("%d-%02d-%02d %02d:%02d:%02d ",
-			t.Year(), t.Month(), t.Day(),
-			t.Hour(), t.Minute(), t.Second())
-
-		p.buf = append(p.buf, ss...)
-	}
-
-	if len(p.pfx) > 0 {
-		p.buf = append(p.buf, p.pfx...)
+		p.buf = append(p.buf, sti...)
 	}
 
 	p.buf = append(p.buf, s...)
@@ -94,6 +79,17 @@ func (p *Lgx) write(s string) {
 	}
 
 	p.out.Write(p.buf)
+
+	if (p.prop & LgxFile) == LgxFile {
+		sti = strings.ReplaceAll(sti[0:10], "-", "")
+		pSep := string(os.PathSeparator)
+		logFileName := p.logDir + pSep + sti[0:4] + pSep + sti[4:6]
+
+		if createDirIfNotExist(logFileName) {
+			logFileName = logFileName + pSep + p.logFilePfx + sti + ".log"
+			appendFile(logFileName, string(p.buf))
+		}
+	}
 }
 
 // Fatal #
@@ -112,7 +108,9 @@ func (p *Lgx) Print(v ...interface{}) {
 	p.write(fmt.Sprintln(v...))
 }
 
-var std = New(os.Stderr, "", 0)
+//------------- Standard ------------------------
+var std = New(os.Stderr, 0)
+var isDebug = atob(os.Getenv("DEBUG"))
 
 // Print #
 func Print(v ...interface{}) {
@@ -121,7 +119,7 @@ func Print(v ...interface{}) {
 
 // PrintDebug #
 func PrintDebug(v ...interface{}) {
-	if (std.prop & LgxDebug) != LgxDebug {
+	if !isDebug || (std.prop&LgxDebug) != LgxDebug {
 		return
 	}
 
@@ -145,7 +143,7 @@ func Printf(format string, v ...interface{}) {
 
 // PrintfDebug #
 func PrintfDebug(format string, v ...interface{}) {
-	if (std.prop & LgxDebug) != LgxDebug {
+	if !isDebug || (std.prop&LgxDebug) != LgxDebug {
 		return
 	}
 	std.write("[DEBUG] " + fmt.Sprintf(format, v...))
@@ -168,10 +166,59 @@ func Fatal(v ...interface{}) {
 }
 
 // SetDefault #
-func SetDefault(w io.Writer, pfx string, prop int) {
+func SetDefault(w io.Writer, prop int, dir string, pfx string) {
 	std.mu.Lock()
 	defer std.mu.Unlock()
 
-	std.pfx = setPfx(pfx)
 	std.prop = prop
+
+	std.logDir = dir
+	std.logFilePfx = pfx
+	if dir != "" {
+		std.prop |= LgxFile
+	}
+}
+
+// SetProp #
+func SetProp(prop int) {
+	std.mu.Lock()
+	defer std.mu.Unlock()
+
+	std.prop = prop
+}
+
+func atob(s string) bool {
+	i64, err := strconv.ParseInt(s, 10, 0)
+	if err != nil {
+		return false
+	}
+
+	return i64 > 0
+}
+
+func appendFile(path string, data string) error {
+	f, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+	if err != nil {
+		return err
+	}
+
+	os.Chmod(path, 0666)
+	defer f.Close()
+
+	if _, err := f.WriteString(data); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func createDirIfNotExist(dirName string) bool {
+	if _, err := os.Stat(dirName); os.IsNotExist(err) {
+		err = os.MkdirAll(dirName, 0755)
+		if err != nil {
+			return false
+		}
+	}
+
+	return true
 }

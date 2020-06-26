@@ -3,6 +3,8 @@
 ### package lgx
 #### Logfunktionen
 
+- func SetDefault
+- func SetProp
 - func Fatal
 - func Print
 - func Printf
