@@ -61,20 +61,28 @@ func (p *Lgx) write(s string) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
-	p.buf = p.buf[:0]
+	le := len(s)
+	addNL := le == 0
+	if !addNL && s[le-1] != '\n' {
+		addNL = true
+	}
 
 	t := time.Now()
 	sti := fmt.Sprintf("%d-%02d-%02d %02d:%02d:%02d ",
 		t.Year(), t.Month(), t.Day(),
 		t.Hour(), t.Minute(), t.Second())
 
-	if p.prop&LgxGcp == 0 {
-		p.buf = append(p.buf, sti...)
+	p.buf = p.buf[:0]
+
+	if le > 0 {
+		if p.prop&LgxGcp == 0 {
+			p.buf = append(p.buf, sti...)
+		}
+
+		p.buf = append(p.buf, s...)
 	}
 
-	p.buf = append(p.buf, s...)
-
-	if len(s) == 0 || s[len(s)-1] != '\n' {
+	if addNL {
 		p.buf = append(p.buf, '\n')
 	}
 
@@ -173,6 +181,15 @@ func SetDefault(w io.Writer, prop int, dir string, pfx string) {
 	std.logFilePfx = pfx
 	if dir != "" {
 		std.prop |= LgxFile
+	}
+}
+
+// Start #
+func Start(info string) {
+	isDebug = atob(os.Getenv("DEBUG"))
+	std.write("")
+	if len(info) > 0 {
+		Print(info)
 	}
 }
 
