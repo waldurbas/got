@@ -61,6 +61,10 @@ func (p *Lgx) write(s string) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
+	p._write(s)
+}
+
+func (p *Lgx) _write(s string) {
 	le := len(s)
 	addNL := le == 0
 	if !addNL && s[le-1] != '\n' {
@@ -123,7 +127,7 @@ func (p *Lgx) Print(v ...interface{}) {
 
 //------------- Standard ------------------------
 var std = New(os.Stderr, 0)
-var isDebug = atob(os.Getenv("DEBUG"))
+var isDebug = false
 
 // Println #
 func Println(v ...interface{}) {
@@ -180,11 +184,12 @@ func Fatal(v ...interface{}) {
 	os.Exit(1)
 }
 
-// SetDefault #
-func SetDefault(w io.Writer, prop int, dir string, pfx string) {
+// Start #
+func Start(w io.Writer, info string, prop int, dir string, pfx string) {
 	std.mu.Lock()
 	defer std.mu.Unlock()
 
+	isDebug = atob(os.Getenv("DEBUG"))
 	std.prop = prop
 
 	std.logDir = dir
@@ -192,14 +197,10 @@ func SetDefault(w io.Writer, prop int, dir string, pfx string) {
 	if dir != "" {
 		std.prop |= LgxFile
 	}
-}
 
-// Start #
-func Start(info string) {
-	isDebug = atob(os.Getenv("DEBUG"))
 	std.write("")
 	if len(info) > 0 {
-		Print(info)
+		std._write(info)
 	}
 }
 
