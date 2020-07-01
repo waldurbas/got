@@ -198,7 +198,7 @@ func Start(w io.Writer, info string, prop int, dir string, pfx string) {
 		std.prop |= LgxFile
 	}
 
-	std.write("")
+	std._write("")
 	if len(info) > 0 {
 		std._write(info)
 	}
