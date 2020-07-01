@@ -111,18 +111,28 @@ func (p *Lgx) Printf(frm string, v ...interface{}) {
 	p.write(fmt.Sprintf(frm, v...))
 }
 
+// Println #
+func (p *Lgx) Println(v ...interface{}) {
+	p.write(fmt.Sprintln(v...))
+}
+
 // Print #
 func (p *Lgx) Print(v ...interface{}) {
-	p.write(fmt.Sprintln(v...))
+	p.write(fmt.Sprint(v...))
 }
 
 //------------- Standard ------------------------
 var std = New(os.Stderr, 0)
 var isDebug = atob(os.Getenv("DEBUG"))
 
+// Println #
+func Println(v ...interface{}) {
+	std.write(fmt.Sprintln(v...))
+}
+
 // Print #
 func Print(v ...interface{}) {
-	std.write(fmt.Sprintln(v...))
+	std.write(fmt.Sprint(v...))
 }
 
 // PrintDebug #
