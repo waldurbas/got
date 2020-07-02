@@ -46,6 +46,19 @@ func TimeUTC2Unix(s string) int64 {
 	return t.Unix()
 }
 
+// FTime #asString for FileName
+func FTime() string {
+	t := time.Now()
+	return fmt.Sprintf("%d%02d%02d%02d%02d%02d",
+		t.Year(), t.Month(), t.Day(),
+		t.Hour(), t.Minute(), t.Second())
+}
+
+// DatAsInt #
+func DatAsInt() int {
+	return EsubStr2Int(FTime(), 0, 8)
+}
+
 // Estr2Int #
 func Estr2Int(s string) int {
 	return EsubStr2Int(s, 0, 19)

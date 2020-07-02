@@ -1,6 +1,7 @@
 package cnv_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/waldurbas/got/cnv"
@@ -32,5 +33,15 @@ func Test_checkTime(t *testing.T) {
 		if s != tt.s {
 			t.Errorf("Unix2UTCTimeStr(%d): soll %s, ist %s", u, tt.s, s)
 		}
+	}
+}
+
+func Test_checkFTime(t *testing.T) {
+
+	s := cnv.FTime()
+	d := cnv.DatAsInt()
+	ss := fmt.Sprintf("%08d", d)
+	if ss != s[0:8] {
+		t.Errorf("DatAsInt: soll %s, ist %s", s[0:8], ss)
 	}
 }
