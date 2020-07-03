@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path"
 	"strconv"
 	"strings"
 	"sync"
@@ -64,6 +65,17 @@ func (p *Lgx) write(s string) {
 	p._write(s)
 }
 
+// PathJoin # path.Join ist falsch fuer Windows
+func (p *Lgx) PathJoin(elem ...string) string {
+
+	for i, e := range elem {
+		if e != "" {
+			return path.Clean(strings.Join(elem[i:], string(os.PathSeparator)))
+		}
+	}
+	return ""
+}
+
 func (p *Lgx) _write(s string) {
 	le := len(s)
 	addNL := le == 0
@@ -79,6 +91,19 @@ func (p *Lgx) _write(s string) {
 	p.buf = p.buf[:0]
 
 	if le > 0 {
+		if s[0] == '\r' || s[0] == '\n' {
+			p.buf = append(p.buf, s[0])
+			s = s[1:le]
+			le--
+			for le > 0 && (s[0] == '\r' || s[0] == '\n') {
+				p.buf = append(p.buf, s[0])
+				s = s[1:le]
+				le--
+			}
+			p.out.Write(p.buf)
+			p.buf = p.buf[:0]
+		}
+
 		if p.prop&LgxGcp == 0 {
 			p.buf = append(p.buf, sti...)
 		}
@@ -94,11 +119,10 @@ func (p *Lgx) _write(s string) {
 
 	if (p.prop & LgxFile) == LgxFile {
 		sti = strings.ReplaceAll(sti[0:10], "-", "")
-		pSep := string(os.PathSeparator)
-		logFileName := p.logDir + pSep + sti[0:4] + pSep + sti[4:6]
+		logFileName := p.PathJoin(p.logDir, sti[0:4], sti[4:6])
 
 		if createDirIfNotExist(logFileName) {
-			logFileName = logFileName + pSep + p.logFilePfx + sti + ".log"
+			logFileName = p.PathJoin(logFileName, p.logFilePfx+sti+".log")
 			appendFile(logFileName, string(p.buf))
 		}
 	}
