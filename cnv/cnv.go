@@ -19,6 +19,7 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 	"time"
@@ -110,6 +111,22 @@ func FormatInt(n int) string {
 // Estr2Int #
 func Estr2Int(s string) int {
 	return EsubStr2Int(s, 0, 19)
+}
+
+// Esubstr #
+func Esubstr(s string, ix int, le int) string {
+	l := len(s)
+
+	if ix > l {
+		return ""
+	}
+
+	if (ix + le) > l {
+		le = l - ix
+	}
+
+	b := s[ix : ix+le]
+	return b
 }
 
 // EsubStr2Int #
@@ -285,4 +302,102 @@ func ReverseString(s string) string {
 func Md5HexString(b *[]byte) string {
 	chk := md5.Sum(*b)
 	return hex.EncodeToString(chk[:16])
+}
+
+// ToUTF8 #ISO8859_1 to UTF8
+func ToUTF8(s string) string {
+
+	iso8859Buf := []byte(s)
+
+	buf := make([]rune, len(iso8859Buf))
+	for i, b := range iso8859Buf {
+		if b == 0x80 {
+			buf[i] = '€'
+		} else {
+			buf[i] = rune(b)
+		}
+	}
+	return string(buf)
+}
+
+// ToAnsi #UTF8 to ANSI
+func ToAnsi(buf *[]byte) []byte {
+	ansiBuf := make([]byte, len(*buf))
+
+	a := 0
+	for i := 0; i < len(*buf); i++ {
+		switch (*buf)[i] {
+		case 0xe2: // € = e2 82 ac
+			i++
+			if (*buf)[i] == 0x82 {
+				i++
+				if (*buf)[i] == 0xac {
+					ansiBuf[a] = 0x80
+					a++
+				}
+			}
+		case 0xc2:
+			i++
+			ansiBuf[a] = (*buf)[i]
+			a++
+		case 0xc3:
+			i++
+			ansiBuf[a] = (*buf)[i] + 0x40
+			a++
+		default:
+			ansiBuf[a] = (*buf)[i]
+			a++
+		}
+	}
+
+	return ansiBuf[:a]
+}
+
+// BitIsSet #
+func BitIsSet(b, flag uint) bool { return b&flag != 0 }
+
+// BitSet #
+func BitSet(b, flag uint) uint { return b | flag }
+
+// BitClear #
+func BitClear(b, flag uint) uint { return b &^ flag }
+
+// BitToggle #
+func BitToggle(b, flag uint) uint { return b ^ flag }
+
+// ReadableBytes #
+func ReadableBytes(n uint64) string {
+	sizes := []string{"B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"}
+
+	b := float64(1024)
+	e := math.Floor(math.Log(float64(n)) / math.Log(b))
+	sfx := sizes[int(e)]
+	v := float64(n) / math.Pow(b, math.Floor(e))
+	f := "%.0f"
+	if v < 10 {
+		f = "%.1f"
+	}
+
+	return fmt.Sprintf(f+" %s", v, sfx)
+}
+
+// GetVersion #
+func GetVersion(ss string) string {
+
+	s := strings.Split(ss, ".")
+
+	if len(s) != 4 {
+		return "0.0.0.0"
+	}
+
+	var v [4]int
+
+	for i := 0; i < 4; i++ {
+		v[i] = EsubStr2Int(s[i], 0, 4)
+	}
+
+	return strconv.Itoa(v[0]) + "." +
+		strconv.Itoa(v[1]) + "." +
+		strconv.Itoa(v[2]) + "." +
+		strconv.Itoa(v[3])
 }
