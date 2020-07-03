@@ -65,17 +65,6 @@ func (p *Lgx) write(s string) {
 	p._write(s)
 }
 
-// PathJoin # path.Join ist falsch fuer Windows
-func (p *Lgx) PathJoin(elem ...string) string {
-
-	for i, e := range elem {
-		if e != "" {
-			return path.Clean(strings.Join(elem[i:], string(os.PathSeparator)))
-		}
-	}
-	return ""
-}
-
 func (p *Lgx) _write(s string) {
 	le := len(s)
 	addNL := le == 0
@@ -119,10 +108,10 @@ func (p *Lgx) _write(s string) {
 
 	if (p.prop & LgxFile) == LgxFile {
 		sti = strings.ReplaceAll(sti[0:10], "-", "")
-		logFileName := p.PathJoin(p.logDir, sti[0:4], sti[4:6])
+		logFileName := PathJoin(p.logDir, sti[0:4], sti[4:6])
 
 		if createDirIfNotExist(logFileName) {
-			logFileName = p.PathJoin(logFileName, p.logFilePfx+sti+".log")
+			logFileName = PathJoin(logFileName, p.logFilePfx+sti+".log")
 			appendFile(logFileName, string(p.buf))
 		}
 	}
@@ -206,6 +195,17 @@ func PrintfError(format string, v ...interface{}) {
 func Fatal(v ...interface{}) {
 	std.write("[FATAL] " + fmt.Sprintln(v...))
 	os.Exit(1)
+}
+
+// PathJoin # path.Join ist falsch fuer Windows
+func PathJoin(elem ...string) string {
+
+	for i, e := range elem {
+		if e != "" {
+			return path.Clean(strings.Join(elem[i:], string(os.PathSeparator)))
+		}
+	}
+	return ""
 }
 
 // Start #
