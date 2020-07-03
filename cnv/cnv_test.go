@@ -45,3 +45,44 @@ func Test_checkFTime(t *testing.T) {
 		t.Errorf("DatAsInt: soll %s, ist %s", s[0:8], ss)
 	}
 }
+
+func Test_int2dat(t *testing.T) {
+	var dtest = []struct {
+		s string
+		u int
+	}{
+		{"2020-05-13", 20200513},
+		{"2000-01-01", 20000101},
+	}
+
+	for _, tt := range dtest {
+		ss := cnv.Int2Dat(tt.u)
+
+		if ss != tt.s {
+			t.Errorf("Int2Dat(%d): soll %s, ist %s", tt.u, tt.s, ss)
+		}
+	}
+}
+
+func Test_formatInt(t *testing.T) {
+	var dtest = []struct {
+		s string
+		u int
+	}{
+		{"20.200.513", 20200513},
+		{"101", 101},
+		{"0", 0},
+		{"1.000", 1000},
+		{"21.000", 21000},
+		{"321.001", 321001},
+		{"1321.001", 1321001},
+	}
+
+	for _, tt := range dtest {
+		ss := cnv.FormatInt(tt.u)
+
+		if ss != tt.s {
+			t.Errorf("FormatInt(%d): soll %s, ist %s", tt.u, tt.s, ss)
+		}
+	}
+}

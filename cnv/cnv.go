@@ -19,6 +19,7 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -57,6 +58,53 @@ func FTime() string {
 // DatAsInt #
 func DatAsInt() int {
 	return EsubStr2Int(FTime(), 0, 8)
+}
+
+// Int2Dat #
+func Int2Dat(d int) string {
+	out := make([]byte, 10)
+	in := fmt.Sprintf("%.8d", d)
+
+	for i := 0; i < 4; i++ {
+		out[i] = in[i]
+	}
+
+	out[4] = '-'
+	for i := 4; i < 6; i++ {
+		out[i+1] = in[i]
+	}
+
+	out[7] = '-'
+	for i := 6; i < 8; i++ {
+		out[i+2] = in[i]
+	}
+
+	return string(out)
+}
+
+// FormatInt64 #Format Integer mit Tausend Points
+func FormatInt64(n int64) string {
+	in := strconv.FormatInt(n, 10)
+	out := make([]byte, len(in)+(len(in)-2+int(in[0]/'0'))/3)
+	if in[0] == '-' {
+		in, out[0] = in[1:], '-'
+	}
+
+	for i, j, k := len(in)-1, len(out)-1, 0; ; i, j = i-1, j-1 {
+		out[j] = in[i]
+		if i == 0 {
+			return string(out)
+		}
+		if k++; k == 3 {
+			j, k = j-1, 0
+			out[j] = '.'
+		}
+	}
+}
+
+// FormatInt #Format Integer mit Tausend Points
+func FormatInt(n int) string {
+	return FormatInt64(int64(n))
 }
 
 // Estr2Int #
