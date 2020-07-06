@@ -113,8 +113,8 @@ func Estr2Int(s string) int {
 	return EsubStr2Int(s, 0, 19)
 }
 
-// Esubstr #
-func Esubstr(s string, ix int, le int) string {
+// EsubStr #
+func EsubStr(s string, ix int, le int) string {
 	l := len(s)
 
 	if ix > l {
