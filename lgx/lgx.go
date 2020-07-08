@@ -11,6 +11,7 @@ package lgx
 // ----------------------------------------------------------------------------------
 // HISTORY
 //-----------------------------------------------------------------------------------
+// 2020.07.06 (wu) SearchEmptyDirs,SearchFilesOlderAs,IsDirEmpty
 // 2020.06.23 (wu) LgxDebug
 // 2020.03.11 (wu) env.GCP
 // 2020.02.10 (wu) Init
@@ -21,6 +22,7 @@ import (
 	"io"
 	"os"
 	"path"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -251,7 +253,6 @@ func appendFile(path string, data string) error {
 		return err
 	}
 
-	os.Chmod(path, 0666)
 	defer f.Close()
 
 	if _, err := f.WriteString(data); err != nil {
@@ -263,15 +264,15 @@ func appendFile(path string, data string) error {
 
 // CreateDirIfNotExist #
 func CreateDirIfNotExist(dirName string) bool {
-	if _, err := os.Stat(dirName); os.IsNotExist(err) {
-		err = os.MkdirAll(dirName, 0755)
-		if err != nil {
-			panic(err)
-		}
+	if DirExists(dirName) {
 		return true
 	}
 
-	return false
+	err := os.MkdirAll(dirName, 0755)
+	if err != nil {
+		panic(err)
+	}
+	return true
 }
 
 // DirExists #
@@ -292,4 +293,63 @@ func FileExists(filename string) bool {
 		return false
 	}
 	return !f.IsDir()
+}
+
+// IsDirEmpty #
+func IsDirEmpty(name string) bool {
+	f, err := os.Open(name)
+	if err != nil {
+		return false
+	}
+	defer f.Close()
+
+	// read in ONLY one file
+	_, err = f.Readdir(1)
+
+	// and if the file is EOF... well, the dir is empty.
+	if err == io.EOF {
+		return true
+	}
+
+	return false
+}
+
+// SearchEmptyDirs #
+func SearchEmptyDirs(dir string) *[]string {
+	files := []string{}
+	filepath.Walk(dir, func(path string, fInfo os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if fInfo.IsDir() {
+			if IsDirEmpty(path) {
+				files = append(files, path)
+			}
+		}
+		return nil
+	})
+
+	return &files
+}
+
+// SearchFilesOlderAs #
+func SearchFilesOlderAs(dir string, days int) *[]string {
+	timeBis := time.Now().UTC().Unix() - int64(days*86400)
+
+	files := []string{}
+	filepath.Walk(dir, func(path string, fInfo os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if fInfo.Mode().IsRegular() {
+			if timeBis-fInfo.ModTime().UTC().Unix() > 0 {
+				files = append(files, path)
+			}
+		}
+		return nil
+	})
+
+	return &files
 }
