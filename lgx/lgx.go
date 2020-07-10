@@ -112,7 +112,7 @@ func (p *Lgx) _write(s string) {
 		sti = strings.ReplaceAll(sti[0:10], "-", "")
 		logFileName := PathJoin(p.logDir, sti[0:4], sti[4:6])
 
-		if CreateDirIfNotExist(logFileName) {
+		if CreateDirIfNotExist(logFileName) != -1 {
 			logFileName = PathJoin(logFileName, p.logFilePfx+sti+".log")
 			appendFile(logFileName, string(p.buf))
 		}
@@ -263,16 +263,17 @@ func appendFile(path string, data string) error {
 }
 
 // CreateDirIfNotExist #
-func CreateDirIfNotExist(dirName string) bool {
+func CreateDirIfNotExist(dirName string) int {
 	if DirExists(dirName) {
-		return true
+		return 0
 	}
 
 	err := os.MkdirAll(dirName, 0755)
 	if err != nil {
-		panic(err)
+		return -1
 	}
-	return true
+
+	return 1
 }
 
 // DirExists #
