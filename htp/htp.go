@@ -29,7 +29,6 @@ type HtReq struct {
 	Msg        string
 	Body       []byte
 	Err        error
-	Map        map[string]interface{}
 }
 
 // Post #
@@ -55,8 +54,6 @@ func Delete(url string, token string, jsData *[]byte) *HtReq {
 // Request #
 func Request(url string, method string, token string, jsData *[]byte) *HtReq {
 	rr := HtReq{}
-	rr.Map = make(map[string]interface{})
-
 	req, err := http.NewRequest(method, url, bytes.NewBuffer(*jsData))
 	if err != nil {
 		rr.Err = err
@@ -93,8 +90,6 @@ func Request(url string, method string, token string, jsData *[]byte) *HtReq {
 
 	if rr.Err != nil {
 		rr.Msg = "error.ReadAll"
-	} else {
-		json.Unmarshal(rr.Body, &rr.Map)
 	}
 
 	return &rr
