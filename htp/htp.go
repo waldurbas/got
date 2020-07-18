@@ -17,6 +17,7 @@ package htp
 import (
 	"bytes"
 	"encoding/json"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -54,7 +55,15 @@ func Delete(url string, token string, jsData *[]byte) *HtReq {
 // Request #
 func Request(url string, method string, token string, jsData *[]byte) *HtReq {
 	rr := HtReq{}
-	req, err := http.NewRequest(method, url, bytes.NewBuffer(*jsData))
+
+	var r io.Reader
+	if jsData != nil {
+		r = bytes.NewBuffer(*jsData)
+	} else {
+		r = nil
+	}
+
+	req, err := http.NewRequest(method, url, r)
 	if err != nil {
 		rr.Err = err
 		rr.Msg = "error.NewRequest"
@@ -87,7 +96,6 @@ func Request(url string, method string, token string, jsData *[]byte) *HtReq {
 	rr.StatusCode = rsp.StatusCode
 
 	rr.Body, rr.Err = ioutil.ReadAll(rsp.Body)
-
 	if rr.Err != nil {
 		rr.Msg = "error.ReadAll"
 	}

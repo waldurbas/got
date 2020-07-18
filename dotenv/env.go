@@ -11,6 +11,7 @@ package dotenv
 // ----------------------------------------------------------------------------------
 // HISTORY
 //-----------------------------------------------------------------------------------
+// 2020.07.18 (wu) set && export weglassen
 // 2019.11.24 (wu) Init
 //-----------------------------------------------------------------------------------
 
@@ -31,6 +32,17 @@ func Load() {
 
 	lines := strings.Split(string(b), "\n")
 	for _, s := range lines {
+		s = strings.Trim(s, " \t")
+
+		if len(s) > 6 {
+			sl := strings.ToLower(s)
+			if sl[:3] == "set" {
+				s = strings.Trim(s[3:], " \t")
+			} else if sl[:6] == "export" {
+				s = strings.Trim(s[6:], " \t")
+			}
+		}
+
 		ex := strings.Split(s, "=")
 		if len(ex) == 2 && len(ex[0]) > 1 {
 			v := checkValue(ex[1])
