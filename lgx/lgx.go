@@ -37,6 +37,7 @@ type Lgx struct {
 	buf        []byte
 	logDir     string
 	logFilePfx string
+	curDir     string
 }
 
 // LGX_STD #Standard mit Time
@@ -50,7 +51,13 @@ const (
 
 // New #
 func New(out io.Writer, prop int) *Lgx {
-	return &Lgx{out: out, prop: prop}
+	sdir, _ := PathSplit(os.Args[0])
+	return &Lgx{out: out, prop: prop, curDir: sdir}
+}
+
+// CurDir #
+func (p *Lgx) CurDir() string {
+	return p.curDir
 }
 
 // SetOutput sets the output destination for the logger.
@@ -60,16 +67,17 @@ func (p *Lgx) SetOutput(w io.Writer) {
 	p.out = w
 }
 
-func (p *Lgx) write(s string) {
+func (p *Lgx) write(s string) string {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
-	p._write(s)
+	return p._write(s)
 }
 
-func (p *Lgx) _write(s string) {
+func (p *Lgx) _write(s string) string {
 	le := len(s)
 	addNL := le == 0
+	noNL := false
 	if !addNL && s[le-1] != '\n' {
 		addNL = true
 	}
@@ -80,7 +88,6 @@ func (p *Lgx) _write(s string) {
 		t.Hour(), t.Minute(), t.Second())
 
 	p.buf = p.buf[:0]
-
 	if le > 0 {
 		if s[0] == '\r' || s[0] == '\n' {
 			p.buf = append(p.buf, s[0])
@@ -91,6 +98,15 @@ func (p *Lgx) _write(s string) {
 				s = s[1:le]
 				le--
 			}
+
+			if le > 0 {
+				if s[le-1] == '#' {
+					s = s[:le-1]
+					le--
+					noNL = true
+				}
+			}
+
 			p.out.Write(p.buf)
 			p.buf = p.buf[:0]
 		}
@@ -102,13 +118,19 @@ func (p *Lgx) _write(s string) {
 		p.buf = append(p.buf, s...)
 	}
 
-	if addNL {
+	ss := string(p.buf)
+
+	if addNL && !noNL {
 		p.buf = append(p.buf, '\n')
 	}
 
 	p.out.Write(p.buf)
 
 	if (p.prop & LgxFile) == LgxFile {
+		if addNL && noNL {
+			p.buf = append(p.buf, '\n')
+		}
+
 		sti = strings.ReplaceAll(sti[0:10], "-", "")
 		logFileName := PathJoin(p.logDir, sti[0:4], sti[4:6])
 
@@ -117,6 +139,8 @@ func (p *Lgx) _write(s string) {
 			appendFile(logFileName, string(p.buf))
 		}
 	}
+
+	return ss
 }
 
 // Fatal #
@@ -126,8 +150,8 @@ func (p *Lgx) Fatal(v ...interface{}) {
 }
 
 // Printf #
-func (p *Lgx) Printf(frm string, v ...interface{}) {
-	p.write(fmt.Sprintf(frm, v...))
+func (p *Lgx) Printf(frm string, v ...interface{}) string {
+	return p.write(fmt.Sprintf(frm, v...))
 }
 
 // Println #
@@ -136,13 +160,20 @@ func (p *Lgx) Println(v ...interface{}) {
 }
 
 // Print #
-func (p *Lgx) Print(v ...interface{}) {
-	p.write(fmt.Sprint(v...))
+func (p *Lgx) Print(v ...interface{}) string {
+	return p.write(fmt.Sprint(v...))
 }
 
 //------------- Standard ------------------------
 var std = New(os.Stderr, 0)
-var isDebug = false
+
+// IsDebug #
+var IsDebug = false
+
+// CurDir #
+func CurDir() string {
+	return std.curDir
+}
 
 // Println #
 func Println(v ...interface{}) {
@@ -150,13 +181,13 @@ func Println(v ...interface{}) {
 }
 
 // Print #
-func Print(v ...interface{}) {
-	std.write(fmt.Sprint(v...))
+func Print(v ...interface{}) string {
+	return std.write(fmt.Sprint(v...))
 }
 
 // PrintDebug #
 func PrintDebug(v ...interface{}) {
-	if isDebug || (std.prop&LgxDebug) == LgxDebug {
+	if IsDebug || (std.prop&LgxDebug) == LgxDebug {
 		std.write("[DEBUG] " + fmt.Sprintln(v...))
 	}
 }
@@ -172,13 +203,13 @@ func PrintError(v ...interface{}) {
 }
 
 // Printf #
-func Printf(format string, v ...interface{}) {
-	std.write(fmt.Sprintf(format, v...))
+func Printf(format string, v ...interface{}) string {
+	return std.write(fmt.Sprintf(format, v...))
 }
 
 // PrintfDebug #
 func PrintfDebug(format string, v ...interface{}) {
-	if isDebug || (std.prop&LgxDebug) == LgxDebug {
+	if IsDebug || (std.prop&LgxDebug) == LgxDebug {
 		std.write("[DEBUG] " + fmt.Sprintf(format, v...))
 	}
 }
@@ -199,6 +230,12 @@ func Fatal(v ...interface{}) {
 	os.Exit(1)
 }
 
+// PathSplit # path.Split ist falsch fuer windows
+func PathSplit(path string) (dir, file string) {
+	i := strings.LastIndex(path, string(os.PathSeparator))
+	return path[:i+1], path[i+1:]
+}
+
 // PathJoin # path.Join ist falsch fuer Windows
 func PathJoin(elem ...string) string {
 
@@ -215,7 +252,7 @@ func Start(w io.Writer, info string, prop int, dir string, pfx string) {
 	std.mu.Lock()
 	defer std.mu.Unlock()
 
-	isDebug = atob(os.Getenv("DEBUG"))
+	IsDebug = atob(os.Getenv("DEBUG"))
 	std.prop = prop
 
 	std.logDir = dir

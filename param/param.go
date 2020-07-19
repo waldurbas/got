@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -62,6 +63,9 @@ func init() {
 
 	ValueCheck("debug", "1")
 	glo.debug = AsInt("debug", 0)
+	if glo.debug > 0 {
+		os.Setenv("DEBUG", strconv.Itoa(glo.debug))
+	}
 }
 
 // Param #

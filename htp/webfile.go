@@ -25,6 +25,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -128,6 +129,88 @@ func DownloadFile(url string, toFile string) error {
 	return nil
 }
 
+var wg sync.WaitGroup
+
+// ParalellDownloadFile #
+func ParalellDownloadFile(url string, toFile string) error {
+	flen, err := URLfileSize(url)
+	if err != nil {
+		return err
+	}
+
+	maxParts := flen / (1024 * 512)
+	if maxParts > 10 {
+		maxParts = 10
+	}
+
+	lenPart := flen / maxParts // Bytes for each Go-routine
+	diff := flen % maxParts    // Get the remaining for the last request
+
+	// tmpfile ohne lfd und ext.
+	ss := "x" + strconv.FormatInt(time.Now().UnixNano(), 16) + "z"
+	tmpFile := os.TempDir() + string(os.PathSeparator) + ss
+
+	for i := 0; i < maxParts; i++ {
+		wg.Add(1)
+
+		min := lenPart * i       // Min range
+		max := lenPart * (i + 1) // Max range
+
+		if i == maxParts-1 {
+			max += diff // Add the remaining bytes in the last request
+		}
+
+		go func(min int, max int, i int) {
+			client := &http.Client{}
+			req, _ := http.NewRequest("GET", url, nil)
+
+			// Add the data for the Range header of the form "bytes=0-100"
+			rangeHeader := "bytes=" + strconv.Itoa(min) + "-" + strconv.Itoa(max-1)
+			req.Header.Add("Range", rangeHeader)
+
+			resp, _ := client.Do(req)
+			defer resp.Body.Close()
+
+			b, _ := ioutil.ReadAll(resp.Body)
+
+			// write to file
+			ioutil.WriteFile(tmpFile+"_"+strconv.Itoa(i)+".tmp", b, 0x777)
+			wg.Done()
+		}(min, max, i)
+	}
+	wg.Wait()
+
+	outFile := toFile + ".tmp"
+	os.Remove(outFile)
+
+	f, err := os.OpenFile(outFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0755)
+	if err != nil {
+		return err
+	}
+
+	for i := 0; i < maxParts; i++ {
+		xFile := tmpFile + "_" + strconv.Itoa(i) + ".tmp"
+		b, err := ioutil.ReadFile(xFile)
+		if err != nil {
+			f.Close()
+			return err
+		}
+		os.Remove(xFile)
+		f.Write(b)
+	}
+	f.Close()
+
+	os.Remove(toFile)
+	// Rename the tmp file back to the original file
+	time.Sleep(1 * time.Second)
+	err = os.Rename(outFile, toFile)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // URLfileSize #
 func URLfileSize(url string) (int, error) {
 	resp, err := http.Head(url)
@@ -197,6 +280,17 @@ func (f *DownloadFileInfo) Download(toFile string) error {
 
 	urlFile := f.parent.url + "/" + f.FileName + ".gz"
 	if err := DownloadFile(urlFile, toFile); err != nil {
+		return err
+	}
+
+	return f.SetFileTime(toFile)
+}
+
+// ParalellDownload #
+func (f *DownloadFileInfo) ParalellDownload(toFile string) error {
+
+	urlFile := f.parent.url + "/" + f.FileName + ".gz"
+	if err := ParalellDownloadFile(urlFile, toFile); err != nil {
 		return err
 	}
 

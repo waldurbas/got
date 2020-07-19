@@ -11,6 +11,7 @@ package cnv
 // ----------------------------------------------------------------------------------
 // HISTORY
 //-----------------------------------------------------------------------------------
+// 2020.07.19 (wu) PermitWeekday
 // 2019.11.24 (wu) Init
 //-----------------------------------------------------------------------------------
 
@@ -400,4 +401,54 @@ func GetVersion(ss string) string {
 		strconv.Itoa(v[1]) + "." +
 		strconv.Itoa(v[2]) + "." +
 		strconv.Itoa(v[3])
+}
+
+// PermitWeekDay for
+func PermitWeekDay(t time.Time, sDays []string) bool {
+	ih := int(t.Weekday())
+	ok := false
+	for i := 0; i < len(sDays) && !ok; i++ {
+		switch strings.ToLower(sDays[i]) {
+		case "mo", "1":
+			ok = ih == 1
+		case "di", "2":
+			ok = ih == 2
+		case "mi", "3":
+			ok = ih == 3
+		case "do", "4":
+			ok = ih == 4
+		case "fr", "5":
+			ok = ih == 5
+		case "sa", "6":
+			ok = ih == 6
+		case "so", "0":
+			ok = ih == 0
+		}
+	}
+
+	return ok
+}
+
+// PermitHour # array: [ "12:00-18:00","1400-2200"]
+func PermitHour(t time.Time, sh []string) bool {
+	tt := t.Hour()*100 + t.Minute()
+	ok := false
+
+	var vt int
+	var bt int
+	for i := 0; i < len(sh) && !ok; i++ {
+		s := strings.Split(sh[i], "-")
+
+		if len(s) == 1 {
+			vt = EsubStr2Int(s[0], 0, 5)
+			bt = 2400
+		} else {
+			vt = EsubStr2Int(s[0], 0, 5)
+			bt = EsubStr2Int(s[1], 0, 5)
+		}
+
+		ok = tt >= vt && tt <= bt
+	}
+
+	return ok
 }
