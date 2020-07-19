@@ -138,18 +138,16 @@ func ParalellDownloadFile(url string, toFile string) error {
 		return err
 	}
 
-	maxParts := flen / (1024 * 512)
+	maxParts := flen / (1024 * 256)
 	if maxParts > 10 {
 		maxParts = 10
 	}
 
-	lenPart := flen / maxParts // Bytes for each Go-routine
-	diff := flen % maxParts    // Get the remaining for the last request
+	lenPart := flen / maxParts         // Bytes for each Go-routine
+	diff := flen % maxParts            // Get the remaining for the last request
+	body := make([]string, maxParts+1) // Make up a temporary array to hold the data to be written to the file
 
-	// tmpfile ohne lfd und ext.
-	ss := "x" + strconv.FormatInt(time.Now().UnixNano(), 16) + "z"
-	tmpFile := os.TempDir() + string(os.PathSeparator) + ss
-
+	fmt.Print("\nDownload ")
 	for i := 0; i < maxParts; i++ {
 		wg.Add(1)
 
@@ -172,10 +170,12 @@ func ParalellDownloadFile(url string, toFile string) error {
 			defer resp.Body.Close()
 
 			b, _ := ioutil.ReadAll(resp.Body)
+			body[i] = string(b)
 
 			// write to file
-			ioutil.WriteFile(tmpFile+"_"+strconv.Itoa(i)+".tmp", b, 0x777)
+			//			ioutil.WriteFile(tmpFile+"_"+strconv.Itoa(i)+".tmp", b, 0x777)
 			wg.Done()
+			fmt.Print(".")
 		}(min, max, i)
 	}
 	wg.Wait()
@@ -189,24 +189,16 @@ func ParalellDownloadFile(url string, toFile string) error {
 	}
 
 	for i := 0; i < maxParts; i++ {
-		xFile := tmpFile + "_" + strconv.Itoa(i) + ".tmp"
-		b, err := ioutil.ReadFile(xFile)
-		if err != nil {
-			f.Close()
-			return err
-		}
-		os.Remove(xFile)
-		f.Write(b)
+		f.Write([]byte(body[i]))
 	}
 	f.Close()
 
 	os.Remove(toFile)
-	// Rename the tmp file back to the original file
-	time.Sleep(1 * time.Second)
 	err = os.Rename(outFile, toFile)
 	if err != nil {
 		return err
 	}
+	fmt.Print("\nDownload completed..\n")
 
 	return nil
 }
