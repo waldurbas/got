@@ -138,6 +138,7 @@ func ParalellDownloadFile(url string, toFile string) error {
 		return err
 	}
 
+	// in 256 kB Bloecken
 	maxParts := flen / (1024 * 256)
 	if maxParts > 10 {
 		maxParts = 10
@@ -166,14 +167,11 @@ func ParalellDownloadFile(url string, toFile string) error {
 			rangeHeader := "bytes=" + strconv.Itoa(min) + "-" + strconv.Itoa(max-1)
 			req.Header.Add("Range", rangeHeader)
 
-			resp, _ := client.Do(req)
-			defer resp.Body.Close()
+			r, _ := client.Do(req)
+			defer r.Body.Close()
 
-			b, _ := ioutil.ReadAll(resp.Body)
+			b, _ := ioutil.ReadAll(r.Body)
 			body[i] = string(b)
-
-			// write to file
-			//			ioutil.WriteFile(tmpFile+"_"+strconv.Itoa(i)+".tmp", b, 0x777)
 			wg.Done()
 			fmt.Print(".")
 		}(min, max, i)
