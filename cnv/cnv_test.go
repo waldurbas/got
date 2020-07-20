@@ -64,6 +64,44 @@ func Test_int2dat(t *testing.T) {
 	}
 }
 
+func Test_int2dath(t *testing.T) {
+	var dtest = []struct {
+		s string
+		u int
+	}{
+		{"13-05-2020", 20200513},
+		{"01-01-2000", 20000101},
+	}
+
+	for _, tt := range dtest {
+		ss := cnv.Int2DatHuman(tt.u)
+
+		if ss != tt.s {
+			t.Errorf("Int2DatHuman(%d): soll %s, ist %s", tt.u, tt.s, ss)
+		}
+	}
+}
+
+func Test_str2dat(t *testing.T) {
+	var dtest = []struct {
+		s string
+		u int
+	}{
+		{"2020-05-13", 20200513},
+		{"01.2.2010", 20100201},
+		{"1.2.2010", 20100201},
+		{"1.02.2010", 20100201},
+	}
+
+	for _, tt := range dtest {
+		uu := cnv.Str2Dat(tt.s)
+
+		if uu != tt.u {
+			t.Errorf("Str2dat(%s): soll %d, ist %d", tt.s, tt.u, uu)
+		}
+	}
+}
+
 func Test_formatInt(t *testing.T) {
 	var dtest = []struct {
 		s string

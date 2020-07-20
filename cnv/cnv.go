@@ -62,6 +62,33 @@ func DatAsInt() int {
 	return EsubStr2Int(FTime(), 0, 8)
 }
 
+// Str2Dat #
+func Str2Dat(s string) int {
+	sep := "."
+	ix := strings.Index(s, sep)
+	if ix < 0 {
+		sep = "-"
+		ix = strings.Index(s, sep)
+	}
+
+	if ix < 0 {
+		return 0
+	}
+
+	d := strings.Split(s, sep)
+	if len(d) == 3 {
+
+		// jahr vorne
+		if ix == 4 {
+			return EsubStr2Int(d[0], 0, 4)*10000 + EsubStr2Int(d[1], 0, 2)*100 + EsubStr2Int(d[2], 0, 2)
+		}
+
+		return EsubStr2Int(d[2], 0, 4)*10000 + EsubStr2Int(d[1], 0, 2)*100 + EsubStr2Int(d[0], 0, 2)
+	}
+
+	return 0
+}
+
 // Int2Dat #
 func Int2Dat(d int) string {
 	out := make([]byte, 10)
@@ -79,6 +106,28 @@ func Int2Dat(d int) string {
 	out[7] = '-'
 	for i := 6; i < 8; i++ {
 		out[i+2] = in[i]
+	}
+
+	return string(out)
+}
+
+// Int2DatHuman #
+func Int2DatHuman(d int) string {
+	out := make([]byte, 10)
+	in := fmt.Sprintf("%.8d", d)
+
+	for i := 0; i < 2; i++ {
+		out[i] = in[6+i]
+	}
+
+	out[2] = '-'
+	for i := 2; i < 4; i++ {
+		out[i+1] = in[2+i]
+	}
+
+	out[5] = '-'
+	for i := 4; i < 8; i++ {
+		out[i+2] = in[i-4]
 	}
 
 	return string(out)

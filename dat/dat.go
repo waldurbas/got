@@ -11,6 +11,7 @@ package dat
 // ----------------------------------------------------------------------------------
 // HISTORY
 //-----------------------------------------------------------------------------------
+// 2020.07.19 (wu) MkDate
 // 2020.07.05 (wu) Init
 //-----------------------------------------------------------------------------------
 
@@ -42,7 +43,7 @@ func GetDays(dat int) int {
 	days := 0
 	for i = 1980; i < yy; i++ {
 		days += 365
-		if (i%4 == 0 && i%100 != 0) || i%400 == 0 {
+		if schaltJahr(i) {
 			days++
 		}
 	}
@@ -54,4 +55,51 @@ func GetDays(dat int) int {
 	days += dd
 
 	return days
+}
+
+// PutDays #
+func PutDays(days int) int {
+	yy := 1980
+	mm := 1
+	dd := 1
+
+	for days > 365 {
+		tt := 365
+		if schaltJahr(yy) {
+			tt++
+		}
+
+		days -= tt
+
+		if days == 0 {
+			mm = 12
+			dd = 31
+		} else {
+			yy++
+		}
+	}
+
+	for days > 0 {
+		for i := 1; days > 0 && i < 13; i++ {
+			tt := MonDays(i, yy)
+			if days > tt {
+				mm = i + 1
+				days -= tt
+			} else if days > 0 {
+				dd = days
+				days = 0
+			}
+		}
+	}
+
+	return (yy * 10000) + (mm * 100) + dd
+}
+
+// MkDate #
+func MkDate(dat int, dif int) int {
+	return PutDays(GetDays(dat) + dif)
+}
+
+func schaltJahr(j int) bool {
+	return (j%4 == 0 && j%100 != 0) || j%400 == 0
 }
