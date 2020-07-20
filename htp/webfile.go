@@ -11,6 +11,7 @@ package htp
 // ----------------------------------------------------------------------------------
 // HISTORY
 //-----------------------------------------------------------------------------------
+// 2020.07.20 (wu) GetFileInfo loFile
 // 2020.07.18 (wu) taken over and adapted from github.com/waldurbas/xt
 // 2018.12.11 (wu) Init
 //-----------------------------------------------------------------------------------
@@ -294,15 +295,16 @@ func (f *DownloadFileInfo) SetFileTime(toFile string) error {
 
 // GetFileInfo #
 func (fl *DownloadFilesInfo) GetFileInfo(FileName string) (*DownloadFileInfo, error) {
-	lowerFile := strings.ToLower(FileName)
+	b := strings.LastIndex(FileName, string(os.PathSeparator))
+	loFile := strings.ToLower(FileName[b+1:])
 
 	for _, f := range fl.List {
 		wFile := strings.ToLower(f.FileName)
 
-		if wFile == lowerFile {
+		if wFile == loFile {
 			loc, _ := time.LoadLocation("UTC")
 
-			st, err := os.Stat(f.FileName)
+			st, err := os.Stat(FileName)
 			if err != nil {
 				f.Loc.Time = f.Web.Time
 				f.Loc.Size = 0
@@ -311,11 +313,10 @@ func (fl *DownloadFilesInfo) GetFileInfo(FileName string) (*DownloadFileInfo, er
 				f.Loc.Size = uint64(st.Size())
 			}
 
-			//			dif := f.Loc.Time.Sub(f.Web.Time)
 			f.Changed = (f.Web.Size != f.Loc.Size) || (f.Loc.Time != f.Web.Time)
 
-			//	fmt.Printf("webFile: %d %v\n", f.Web.Size, f.Web.Time)
-			//	fmt.Printf("locFile: %d %v\n", f.Loc.Size, f.Loc.Time)
+			//fmt.Printf("\nwebFile: %d %v\n", f.Web.Size, f.Web.Time)
+			//fmt.Printf("locFile: %d %v, changed=%v\n", f.Loc.Size, f.Loc.Time, f.Changed)
 
 			return &f, nil
 		}

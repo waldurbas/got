@@ -22,7 +22,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -231,24 +230,59 @@ func Fatal(v ...interface{}) {
 }
 
 // PathSplit # path.Split ist falsch fuer windows
-func PathSplit(path string) (dir, file string) {
-	i := strings.LastIndex(path, string(os.PathSeparator))
-	sd := path[:i+1]
-	if sd == "" {
-		sd = "." + string(os.PathSeparator)
+func PathSplit(path string) (string, string) {
+	b := strings.LastIndex(path, string(os.PathSeparator))
+	a := b
+	if a > 0 {
+		a--
 	}
-	return sd, path[i+1:]
+
+	sd := path[:a+1]
+	if sd == "" {
+		sd = "."
+	}
+
+	return sd, path[b+1:]
+}
+
+// PathBase #
+func PathBase(path string) string {
+	_, f := PathSplit(path)
+	return f
+}
+
+// PathDir #
+func PathDir(path string) string {
+	d, _ := PathSplit(path)
+	return d
 }
 
 // PathJoin # path.Join ist falsch fuer Windows
 func PathJoin(elem ...string) string {
-
-	for i, e := range elem {
+	ps := string(os.PathSeparator)
+	s := ""
+	for _, e := range elem {
 		if e != "" {
-			return path.Clean(strings.Join(elem[i:], string(os.PathSeparator)))
+			if e[len(e)-1] == ps[0] {
+				e = e[:len(e)-1]
+			}
+
+			if s != "" {
+				if s == ps {
+					s = s + e
+				} else {
+					s = s + ps + e
+				}
+			} else {
+				s = e
+				if s == "" {
+					s = ps
+				}
+			}
 		}
 	}
-	return ""
+
+	return s
 }
 
 // Start #
