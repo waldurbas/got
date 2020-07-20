@@ -11,6 +11,7 @@ package lgx
 // ----------------------------------------------------------------------------------
 // HISTORY
 //-----------------------------------------------------------------------------------
+// 2020.07.20 (wu) PathSplit for Windows
 // 2020.07.06 (wu) SearchEmptyDirs,SearchFilesOlderAs,IsDirEmpty
 // 2020.06.23 (wu) LgxDebug
 // 2020.03.11 (wu) env.GCP
@@ -98,21 +99,20 @@ func (p *Lgx) _write(s string) string {
 				s = s[1:le]
 				le--
 			}
-
-			if le > 0 {
-				if s[le-1] == '#' {
-					s = s[:le-1]
-					le--
-					noNL = true
-				}
-			}
-
 			p.out.Write(p.buf)
 			p.buf = p.buf[:0]
 		}
 
 		if p.prop&LgxGcp == 0 {
 			p.buf = append(p.buf, sti...)
+		}
+
+		if le > 0 {
+			if s[le-1] == '#' {
+				s = s[:le-1]
+				le--
+				noNL = true
+			}
 		}
 
 		p.buf = append(p.buf, s...)
@@ -233,7 +233,11 @@ func Fatal(v ...interface{}) {
 // PathSplit # path.Split ist falsch fuer windows
 func PathSplit(path string) (dir, file string) {
 	i := strings.LastIndex(path, string(os.PathSeparator))
-	return path[:i+1], path[i+1:]
+	sd := path[:i+1]
+	if sd == "" {
+		sd = "." + string(os.PathSeparator)
+	}
+	return sd, path[i+1:]
 }
 
 // PathJoin # path.Join ist falsch fuer Windows

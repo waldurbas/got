@@ -148,7 +148,7 @@ func ParalellDownloadFile(url string, toFile string) error {
 	diff := flen % maxParts            // Get the remaining for the last request
 	body := make([]string, maxParts+1) // Make up a temporary array to hold the data to be written to the file
 
-	fmt.Print("\nDownload ")
+	fmt.Print(" ")
 	for i := 0; i < maxParts; i++ {
 		wg.Add(1)
 
@@ -196,7 +196,6 @@ func ParalellDownloadFile(url string, toFile string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Print("\nDownload completed..\n")
 
 	return nil
 }
