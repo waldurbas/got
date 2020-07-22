@@ -32,6 +32,26 @@ const timeLayout = "2006-01-02 15:04:05"
 
 var locUTC, _ = time.LoadLocation("UTC")
 
+// RfillStr #
+func RfillStr(s, ch string, le int) string {
+	for {
+		s += ch
+		if len(s) > le {
+			return s[0:le]
+		}
+	}
+}
+
+// LfillStr #
+func LfillStr(s, ch string, le int) string {
+	for {
+		s = ch + s
+		if len(s) > le {
+			return s[0:le]
+		}
+	}
+}
+
 // Unix2UTCTimeStr #
 func Unix2UTCTimeStr(ut int64) string {
 

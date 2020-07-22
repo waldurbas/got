@@ -60,11 +60,13 @@ func (p *Lgx) CurDir() string {
 	return p.curDir
 }
 
-// SetOutput sets the output destination for the logger.
-func (p *Lgx) SetOutput(w io.Writer) {
+// SetOutput #output destination for the logger.
+func (p *Lgx) SetOutput(w io.Writer) io.Writer {
 	p.mu.Lock()
 	defer p.mu.Unlock()
+	o := p.out
 	p.out = w
+	return o
 }
 
 func (p *Lgx) write(s string) string {
@@ -89,6 +91,14 @@ func (p *Lgx) _write(s string) string {
 
 	p.buf = p.buf[:0]
 	if le > 0 {
+		withTime := p.prop&LgxGcp == 0
+
+		if le > 3 && s[:3] == "!~!" {
+			withTime = false
+			s = s[3:]
+			le -= 3
+		}
+
 		if s[0] == '\r' || s[0] == '\n' {
 			p.buf = append(p.buf, s[0])
 			s = s[1:le]
@@ -102,7 +112,7 @@ func (p *Lgx) _write(s string) string {
 			p.buf = p.buf[:0]
 		}
 
-		if p.prop&LgxGcp == 0 {
+		if withTime {
 			p.buf = append(p.buf, sti...)
 		}
 
@@ -311,6 +321,11 @@ func SetProp(prop int) {
 	defer std.mu.Unlock()
 
 	std.prop = prop
+}
+
+// SetOutput #liefert alten Writer
+func SetOutput(w io.Writer) io.Writer {
+	return std.SetOutput(w)
 }
 
 func atob(s string) bool {
