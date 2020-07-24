@@ -1,4 +1,4 @@
-package htp
+package htx
 
 // ----------------------------------------------------------------------------------
 // webfile.go (https://github.com/waldurbas/got)

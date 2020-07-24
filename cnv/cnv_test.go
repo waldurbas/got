@@ -46,6 +46,29 @@ func Test_checkFTime(t *testing.T) {
 	}
 }
 
+func Test_int2prs(t *testing.T) {
+	var dtest = []struct {
+		s string
+		u int
+	}{
+		{"0.01", 2},
+		{"0.25", 25},
+		{"0.99", 99},
+		{"1.02", 102},
+		{"99.29", 9929},
+		{"199.00", 19900},
+		{"1024.95", 102495},
+	}
+
+	for _, tt := range dtest {
+		ss := cnv.Int2Prs(tt.u)
+
+		if ss != tt.s {
+			t.Errorf("Int2Prs(%d): soll %s, ist %s", tt.u, tt.s, ss)
+		}
+	}
+}
+
 func Test_int2dat(t *testing.T) {
 	var dtest = []struct {
 		s string

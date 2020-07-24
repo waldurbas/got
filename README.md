@@ -1,7 +1,7 @@
 ## gotool
 
 ### package lgx
-#### Logfunktionen
+#### Log-Funktionen
 
 - func SetDefault
 - func SetProp
@@ -18,7 +18,7 @@
 
 
 ### package cnv
-#### Konvertierungsfunktionen
+#### Konvertierungs-Funktionen
 
 - func Unix2UTCTimeStr
 - func TimeUTC2Unix 
@@ -43,6 +43,16 @@
 - func Md5HexString
 
 ### package dotenv
-#### .cnv einlesen
+#### .env einlesen
 
 - func Load
+
+### package htx
+#### http-Funktionen
+
+- func Post
+- func Get
+- func Put
+- func Delete
+- func Request
+- func JSON2Str

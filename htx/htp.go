@@ -1,4 +1,4 @@
-package htp
+package htx
 
 // ----------------------------------------------------------------------------------
 // htp.go (https://github.com/waldurbas/got)
@@ -11,6 +11,7 @@ package htp
 // ----------------------------------------------------------------------------------
 // HISTORY
 //-----------------------------------------------------------------------------------
+// 2020.07.25 (wu) HtReqMap
 // 2020.07.05 (wu) Init
 //-----------------------------------------------------------------------------------
 
@@ -30,6 +31,11 @@ type HtReq struct {
 	Msg        string
 	Body       []byte
 	Err        error
+}
+
+// HtReqMap #
+type HtReqMap struct {
+	m map[string]interface{}
 }
 
 // Post #
@@ -116,4 +122,35 @@ func JSON2Str(data interface{}) string {
 		return empty
 	}
 	return buffer.String()
+}
+
+// ToMap #
+func (r *HtReq) ToMap() *HtReqMap {
+	x := &HtReqMap{}
+	json.Unmarshal(r.Body, &x.m)
+	return x
+}
+
+// MapValueAsString #
+func (x *HtReqMap) MapValueAsString(key string) string {
+	switch v := x.m[key].(type) {
+	case string:
+		return v
+	}
+
+	return ""
+}
+
+// StringMap #
+func (x *HtReqMap) StringMap() map[string]string {
+	m := map[string]string{}
+
+	for k, i := range x.m {
+		switch v := i.(type) {
+		case string:
+			m[k] = v
+		}
+	}
+
+	return m
 }

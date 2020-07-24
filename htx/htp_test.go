@@ -1,16 +1,16 @@
-package htp_test
+package htx_test
 
 import (
 	"fmt"
 	"testing"
 
 	"github.com/waldurbas/got/cnv"
-	h "github.com/waldurbas/got/htp"
+	"github.com/waldurbas/got/htx"
 )
 
 func Test_checkDownLoad(t *testing.T) {
 	url := "http://xxx..."
-	di, err := h.GetDownloadFilesInfo(url)
+	di, err := htx.GetDownloadFilesInfo(url)
 
 	if err != nil {
 		t.Errorf("GetDownloadFilesInfo(%s):\n%v", url, err)
