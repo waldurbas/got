@@ -11,6 +11,7 @@ package res
 // ----------------------------------------------------------------------------------
 // HISTORY
 //-----------------------------------------------------------------------------------
+// 2020.07.24 (wu) New() nach aussen
 // 2018.03.31 (wu) Init
 //-----------------------------------------------------------------------------------
 
@@ -22,42 +23,41 @@ import (
 	"strings"
 )
 
-type resBox struct {
+// Resdata #
+type Resdata struct {
 	data map[string]string
 }
 
-func newResBox() *resBox {
-	return &resBox{data: make(map[string]string)}
+// New #
+func New() *Resdata {
+	return &Resdata{data: make(map[string]string)}
 }
 
-// Find a File in the resBox
-func (r *resBox) Has(file string) bool {
+// Has #Find a File in the resData
+func (r *Resdata) Has(file string) bool {
 	if _, ok := r.data[file]; ok {
 		return true
 	}
 	return false
 }
 
-// Get Data from resBox
-func (r *resBox) Get(file string) (string, bool) {
+// Get Data from resData
+func (r *Resdata) Get(file string) (string, bool) {
 	if f, ok := r.data[file]; ok {
 		return f, ok
 	}
 	return "", false
 }
 
-// Add File into resBox
-func (r *resBox) Add(file string, content string) {
+// Add File into resData
+func (r *Resdata) Add(file string, content string) {
 	r.data[file] = content
 }
 
-// res.Data
-var resData = newResBox()
+// GetDecoded File from resData
+func (r *Resdata) GetDecoded(file string) (string, bool) {
 
-// Get File from resData
-func Get(file string) (string, bool) {
-
-	cData, ok := resData.Get(file)
+	cData, ok := r.Get(file)
 	if !ok || len(cData) < 10 {
 		return "", false
 	}
@@ -66,18 +66,8 @@ func Get(file string) (string, bool) {
 
 	dData, _ := base64.StdEncoding.DecodeString(cData)
 	rdata := bytes.NewReader(dData)
-	r, _ := gzip.NewReader(rdata)
-	s, _ := ioutil.ReadAll(r)
+	rd, _ := gzip.NewReader(rdata)
+	ss, _ := ioutil.ReadAll(rd)
 
-	return string(s), true
-}
-
-// Add File into resData
-func Add(file string, content string) {
-	resData.Add(file, content)
-}
-
-// Has a File in resData
-func Has(file string) bool {
-	return resData.Has(file)
+	return string(ss), true
 }

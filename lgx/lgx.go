@@ -302,7 +302,7 @@ func Start(w io.Writer, info string, prop int, dir string, pfx string) {
 
 	IsDebug = atob(os.Getenv("DEBUG"))
 	std.prop = prop
-
+	std.out = w
 	std.logDir = dir
 	std.logFilePfx = pfx
 	if dir != "" {

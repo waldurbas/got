@@ -11,7 +11,7 @@ package cnv
 // ----------------------------------------------------------------------------------
 // HISTORY
 //-----------------------------------------------------------------------------------
-// 2020.07.19 (wu) PermitWeekday
+// 2020.07.19 (wu) PermitWeekday, Int2Prs, Int2DatHuman
 // 2019.11.24 (wu) Init
 //-----------------------------------------------------------------------------------
 
@@ -129,6 +129,21 @@ func Int2Dat(d int) string {
 	}
 
 	return string(out)
+}
+
+// Int2Prs #
+func Int2Prs(ns int) string {
+	in := strconv.Itoa(ns)
+
+	le := len(in)
+
+	for le < 3 {
+		in = "0" + in
+		le = len(in)
+	}
+
+	out := in[0:le-2] + "." + in[le-2:le]
+	return out
 }
 
 // Int2DatHuman #
