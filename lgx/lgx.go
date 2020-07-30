@@ -272,23 +272,33 @@ func PathJoin(elem ...string) string {
 	ps := string(os.PathSeparator)
 	s := ""
 	for _, e := range elem {
-		if e != "" {
-			if e[len(e)-1] == ps[0] {
-				e = e[:len(e)-1]
+		lx := len(s)
+
+		le := len(e)
+		if lx > 0 {
+			for le > 0 && e[0] == ps[0] {
+				le--
+				e = e[1:]
 			}
 
-			if s != "" {
-				if s == ps {
-					s = s + e
-				} else {
-					s = s + ps + e
-				}
-			} else {
-				s = e
-				if s == "" {
-					s = ps
-				}
+			for le > 0 && e[le-1] == ps[0] {
+				le--
+				e = e[:le]
 			}
+		}
+
+		if le < 1 {
+			continue
+		}
+
+		if lx > 0 {
+			for lx > 0 && s[lx-1] == ps[0] {
+				lx--
+				s = s[:lx]
+			}
+			s = s + ps + e
+		} else {
+			s = e
 		}
 	}
 
