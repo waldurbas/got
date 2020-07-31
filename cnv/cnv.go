@@ -193,6 +193,13 @@ func FormatInt(n int) string {
 	return FormatInt64(int64(n))
 }
 
+var b2i = map[bool]int{false: 0, true: 1}
+
+// Bool2Int #
+func Bool2Int(b bool) int {
+	return b2i[b]
+}
+
 // Estr2Int #
 func Estr2Int(s string) int {
 	return EsubStr2Int(s, 0, 19)
