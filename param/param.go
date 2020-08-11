@@ -199,3 +199,8 @@ func GetEnv(key, defval string) string {
 	}
 	return defval
 }
+
+// Xargs #
+func Xargs() map[string]string {
+	return glo.xargs
+}
