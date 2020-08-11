@@ -77,6 +77,34 @@ func FTime() string {
 		t.Hour(), t.Minute(), t.Second())
 }
 
+// TimeDif #
+func TimeDif(tA time.Time, tL time.Time) (xs int, hh int, mm int, ss int) {
+	dif := tL.Sub(tA)
+	hh = int(dif.Hours())
+	mm = int(dif.Minutes())
+	ss = int(dif.Seconds())
+	xs = ss
+
+	if hh > 0 {
+		mm -= hh * 60
+		ss -= hh * 3600
+	}
+
+	if mm > 0 {
+		ss -= mm * 60
+	}
+
+	return
+}
+
+// STimeDif #Differenz as String
+func STimeDif(tA time.Time, tL time.Time) string {
+
+	_, hh, mm, ss := TimeDif(tA, tL)
+	s := fmt.Sprintf("%.2d:%.2d:%.2d", hh, mm, ss)
+	return s
+}
+
 // DatAsInt #
 func DatAsInt() int {
 	return EsubStr2Int(FTime(), 0, 8)
