@@ -193,11 +193,16 @@ func FormatInt(n int) string {
 	return FormatInt64(int64(n))
 }
 
-var b2i = map[bool]int{false: 0, true: 1}
-
 // Bool2Int #
 func Bool2Int(b bool) int {
-	return b2i[b]
+	// The compiler currently only optimizes this form. See issue 6011.
+	var i int
+	if b {
+		i = 1
+	} else {
+		i = 0
+	}
+	return i
 }
 
 // Estr2Int #
@@ -542,4 +547,18 @@ func PermitHour(t time.Time, sh []string) bool {
 	}
 
 	return ok
+}
+
+// DelimTextAdd #
+func DelimTextAdd(ss *string, s, delim string) {
+	if len(s) < 1 {
+		return
+	}
+
+	if len(*ss) > 0 {
+		*ss = *ss + delim + s
+		return
+	}
+
+	*ss = s
 }

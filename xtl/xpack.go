@@ -1,7 +1,7 @@
 package xtl
 
 // ----------------------------------------------------------------------------------
-// xPack.go for Go's xt package
+// xPack.go for Go's xtl package
 // Copyright 2019,2020 by Waldemar Urbas
 //-----------------------------------------------------------------------------------
 // This Source Code Form is subject to the terms of the 'MIT License'
