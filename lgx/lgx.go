@@ -154,7 +154,13 @@ func (p *Lgx) _write(s string) string {
 
 // Fatal #
 func (p *Lgx) Fatal(v ...interface{}) {
-	p.write(fmt.Sprintln(v...))
+	p.Println(v...)
+	os.Exit(-1)
+}
+
+// Fatalf #
+func (p *Lgx) Fatalf(frm string, v ...interface{}) {
+	p.Printf(frm, v...)
 	os.Exit(-1)
 }
 
@@ -236,6 +242,12 @@ func PrintfError(format string, v ...interface{}) {
 // Fatal #
 func Fatal(v ...interface{}) {
 	std.write("[FATAL] " + fmt.Sprintln(v...))
+	os.Exit(1)
+}
+
+// Fatalf #
+func Fatalf(format string, v ...interface{}) {
+	std.write("[FATAL] " + fmt.Sprintf(format, v...))
 	os.Exit(1)
 }
 
