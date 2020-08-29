@@ -146,6 +146,16 @@ func ValueCheck(sKey string, def string) {
 	}
 }
 
+// CheckVersion #
+func CheckVersion() bool {
+	return !KeyExist("noCheckVersion") &&
+		!KeyExist("noVersion") &&
+		!KeyExist("noVers") &&
+		!KeyExist("noUpd") &&
+		!KeyExist("noUpdate")
+
+}
+
 // Print #
 func Print() {
 	fmt.Println("\n--> xParams:")

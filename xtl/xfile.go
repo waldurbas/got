@@ -4,6 +4,10 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
+	"sort"
+	"strings"
+	"time"
 )
 
 // ----------------------------------------------------------------------------------
@@ -17,6 +21,7 @@ import (
 // ----------------------------------------------------------------------------------
 // HISTORY
 //-----------------------------------------------------------------------------------
+// 2020.08.29 (wu) Add MoveFile, LoadFiles
 // 2018.12.11 (wu) Init
 //-----------------------------------------------------------------------------------
 
@@ -86,4 +91,44 @@ func FileExists(filename string) bool {
 	}
 
 	return !f.IsDir()
+}
+
+// FileInfo #
+type FileInfo struct {
+	FileName string
+	Size     int64
+	Time     time.Time
+}
+
+// LoadFiles #
+func LoadFiles(path, match string) (*[]FileInfo, error) {
+	d, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer d.Close()
+
+	dfiles, err := d.Readdir(-1)
+	if err != nil {
+		return nil, err
+	}
+
+	loc, _ := time.LoadLocation("UTC")
+
+	files := []FileInfo{}
+	for _, fInfo := range dfiles {
+		if fInfo.Mode().IsRegular() {
+			matched, err := filepath.Match(match, fInfo.Name())
+			if err == nil && matched {
+				f := FileInfo{FileName: fInfo.Name(), Size: fInfo.Size(), Time: fInfo.ModTime().In(loc)}
+				files = append(files, f)
+			}
+		}
+	}
+
+	sort.Slice(files, func(i, j int) bool {
+		return strings.ToLower(files[i].FileName) < strings.ToLower(files[j].FileName)
+	})
+
+	return &files, nil
 }

@@ -337,6 +337,31 @@ func Start(w io.Writer, info string, prop int, dir string, pfx string) {
 	}
 }
 
+func printOut(w io.Writer, format string, v ...interface{}) {
+
+	s := fmt.Sprintf(format, v...)
+	if s == "" {
+		fmt.Fprintf(w, "\n")
+	} else {
+		fmt.Fprintf(w, s)
+	}
+}
+
+// PrintNL #
+func PrintNL() {
+	fmt.Fprintf(std.out, "\n")
+}
+
+// PrintStderr #
+func PrintStderr(format string, v ...interface{}) {
+	printOut(os.Stderr, format, v...)
+}
+
+// PrintStdout #
+func PrintStdout(format string, v ...interface{}) {
+	printOut(os.Stdout, format, v...)
+}
+
 // SetProp #
 func SetProp(prop int) {
 	std.mu.Lock()
