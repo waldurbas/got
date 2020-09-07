@@ -11,6 +11,7 @@ package htx
 // ----------------------------------------------------------------------------------
 // HISTORY
 //-----------------------------------------------------------------------------------
+// 2020.09.06 (wu) WriteResponse
 // 2020.07.25 (wu) HtReqMap
 // 2020.07.05 (wu) Init
 //-----------------------------------------------------------------------------------
@@ -22,6 +23,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"time"
+
+	"github.com/waldurbas/got/lgx"
 )
 
 // HtReq #
@@ -36,6 +39,36 @@ type HtReq struct {
 // HtReqMap #
 type HtReqMap struct {
 	m map[string]interface{}
+}
+
+// WriteResponseMsg #
+func WriteResponseMsg(from string, w http.ResponseWriter, statusCode int, statusStr string) {
+	if statusCode == 200 {
+		lgx.PrintDebug(from, "OK")
+	} else {
+		lgx.PrintDebug(from, statusStr)
+	}
+
+	WriteResponse(w, statusCode, map[string]interface{}{"message": statusStr})
+}
+
+// WriteResponse #
+func WriteResponse(w http.ResponseWriter, statusCode int, body interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+
+	b, e := json.Marshal(body)
+	if e != nil {
+		lgx.PrintError("serializing", e)
+		w.WriteHeader(404)
+		w.Write([]byte(e.Error()))
+		return
+	}
+
+	w.WriteHeader(statusCode)
+	_, err := w.Write([]byte(b))
+	if err != nil {
+		lgx.PrintError("writeReponse", err)
+	}
 }
 
 // Post #

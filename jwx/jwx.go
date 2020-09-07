@@ -163,7 +163,6 @@ func RawToken2Map(headToken string) (map[string]interface{}, error) {
 			}
 
 			return m, nil
-
 		}
 	}
 	return nil, errors.New("bad Authorization")
