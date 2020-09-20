@@ -31,6 +31,7 @@ import (
 const timeLayout = "2006-01-02 15:04:05"
 
 var locUTC, _ = time.LoadLocation("UTC")
+var locLOC, _ = time.LoadLocation("Local")
 
 // RfillStr #
 func RfillStr(s, ch string, le int) string {
@@ -52,9 +53,14 @@ func LfillStr(s, ch string, le int) string {
 	}
 }
 
+// Unix2LocalTimeStr #
+func Unix2LocalTimeStr(ut int64) string {
+	t := time.Unix(ut, 0).In(locLOC)
+	return t.Format(timeLayout)
+}
+
 // Unix2UTCTimeStr #
 func Unix2UTCTimeStr(ut int64) string {
-
 	t := time.Unix(ut, 0).In(locUTC)
 	return t.Format(timeLayout)
 }

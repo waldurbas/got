@@ -11,6 +11,7 @@ package lgx
 // ----------------------------------------------------------------------------------
 // HISTORY
 //-----------------------------------------------------------------------------------
+// 2020.09.09 (wu) Info in Start without Datetime
 // 2020.08.29 (wu) PrintLN
 // 2020.07.20 (wu) PathSplit for Windows
 // 2020.07.06 (wu) SearchEmptyDirs,SearchFilesOlderAs,IsDirEmpty
@@ -48,6 +49,9 @@ const (
 	LgxGcp   = 1
 	LgxDebug = 2
 	LgxFile  = 4
+
+	NoTime = "!~!"
+	NoNL   = '#'
 )
 
 // New #
@@ -94,7 +98,7 @@ func (p *Lgx) _write(s string) string {
 	if le > 0 {
 		withTime := p.prop&LgxGcp == 0
 
-		if le > 3 && s[:3] == "!~!" {
+		if le > 3 && s[:3] == NoTime {
 			withTime = false
 			s = s[3:]
 			le -= 3
@@ -118,7 +122,7 @@ func (p *Lgx) _write(s string) string {
 		}
 
 		if le > 0 {
-			if s[le-1] == '#' {
+			if s[le-1] == NoNL {
 				s = s[:le-1]
 				le--
 				noNL = true
@@ -143,7 +147,6 @@ func (p *Lgx) _write(s string) string {
 
 		sti = strings.ReplaceAll(sti[0:10], "-", "")
 		logFileName := PathJoin(p.logDir, sti[0:4], sti[4:6])
-
 		if CreateDirIfNotExist(logFileName) != -1 {
 			logFileName = PathJoin(logFileName, p.logFilePfx+sti+".log")
 			appendFile(logFileName, string(p.buf))
@@ -334,7 +337,7 @@ func Start(w io.Writer, info string, prop int, dir string, pfx string) {
 
 	std._write("")
 	if len(info) > 0 {
-		std._write(info)
+		std._write(NoTime + info)
 	}
 }
 

@@ -1,12 +1,5 @@
 package cnv
 
-import (
-	"bytes"
-	"fmt"
-	"io"
-	"os"
-)
-
 // ----------------------------------------------------------------------------------
 // xBuf.go for Go's cnv package (https://github.com/waldurbas/got)
 // Copyright 2019,2020 by Waldemar Urbas
@@ -16,6 +9,13 @@ import (
 // preservation of copyright and license notices.  Licensed works, modifications,
 // and larger works may be distributed under different terms and without source code.
 // ----------------------------------------------------------------------------------
+
+import (
+	"bytes"
+	"fmt"
+	"io"
+	"os"
+)
 
 // Buffer #
 type Buffer struct {

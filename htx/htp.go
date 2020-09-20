@@ -11,6 +11,7 @@ package htx
 // ----------------------------------------------------------------------------------
 // HISTORY
 //-----------------------------------------------------------------------------------
+// 2020.09.09 (wu) Patch function,Request. 1.st Param is the Method
 // 2020.09.06 (wu) WriteResponse
 // 2020.07.25 (wu) HtReqMap
 // 2020.07.05 (wu) Init
@@ -73,26 +74,31 @@ func WriteResponse(w http.ResponseWriter, statusCode int, body interface{}) {
 
 // Post #
 func Post(url string, token string, jsData *[]byte) *HtReq {
-	return Request(url, "POST", token, jsData)
+	return Request("POST", url, token, jsData)
 }
 
 // Get #
 func Get(url string, token string, jsData *[]byte) *HtReq {
-	return Request(url, "GET", token, jsData)
+	return Request("GET", url, token, jsData)
 }
 
 // Put #
 func Put(url string, token string, jsData *[]byte) *HtReq {
-	return Request(url, "PUT", token, jsData)
+	return Request("PUT", url, token, jsData)
+}
+
+// Patch #
+func Patch(url string, token string, jsData *[]byte) *HtReq {
+	return Request("PATCH", url, token, jsData)
 }
 
 // Delete #
 func Delete(url string, token string, jsData *[]byte) *HtReq {
-	return Request(url, "DELETE", token, jsData)
+	return Request("DELETE", url, token, jsData)
 }
 
 // Request #
-func Request(url string, method string, token string, jsData *[]byte) *HtReq {
+func Request(method string, url string, token string, jsData *[]byte) *HtReq {
 	rr := HtReq{}
 
 	var r io.Reader
@@ -115,8 +121,19 @@ func Request(url string, method string, token string, jsData *[]byte) *HtReq {
 		req.Header.Add("Authorization", token)
 	}
 
-	// set client timeout
-	client := &http.Client{Timeout: time.Second * 15}
+	/*	netTrans := &http.Transport{
+			Dial: (&net.Dialer{
+				Timeout: 5 * time.Second,
+			}).Dial,
+			TLSHandshakeTimeout: 5 * time.Second,
+		}
+	*/
+
+	// set client timeout and Transport
+	client := &http.Client{
+		Timeout: time.Second * 15,
+		//		Transport: netTrans,
+	}
 
 	// send request
 	rsp, e := client.Do(req)
@@ -164,8 +181,8 @@ func (r *HtReq) ToMap() *HtReqMap {
 	return x
 }
 
-// MapValueAsString #
-func (x *HtReqMap) MapValueAsString(key string) string {
+// AsString #
+func (x *HtReqMap) AsString(key string) string {
 	switch v := x.m[key].(type) {
 	case string:
 		return v
