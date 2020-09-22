@@ -8,19 +8,16 @@ import (
 )
 
 func Test_checkTime(t *testing.T) {
+	fmt.Println("Test_checkTime")
 	var dtest = []struct {
 		s string
 		u int64
 	}{
-		{"2020-05-13 23:59:06", 1589414346},
+		{"2020-05-13T23:59:06", 1589414346},
 		{"2000-01-01 00:00:00", 946684800},
-		{"2000-01-01 00:00:00", 946684800},
+		{"2000-01-01T00:00:00", 946684800},
 		{"2020-05-27 07:24:06", 1590564246},
 	}
-
-	//	tm := time.Now()
-	//a := tm.Unix()
-	//t.Errorf("unix: %v, %v", a, tm)
 
 	for _, tt := range dtest {
 		u := cnv.TimeUTC2Unix(tt.s)
@@ -30,14 +27,15 @@ func Test_checkTime(t *testing.T) {
 		}
 
 		s := cnv.Unix2UTCTimeStr(u)
-		if s != tt.s {
+		st := cnv.Unix2UTCTimeStrT(u)
+		if s != tt.s && st != tt.s {
 			t.Errorf("Unix2UTCTimeStr(%d): soll %s, ist %s", u, tt.s, s)
 		}
 	}
 }
 
 func Test_checkFTime(t *testing.T) {
-
+	fmt.Println("Test_checkFTime")
 	s := cnv.FTime()
 	d := cnv.DatAsInt()
 	ss := fmt.Sprintf("%08d", d)
@@ -47,11 +45,12 @@ func Test_checkFTime(t *testing.T) {
 }
 
 func Test_int2prs(t *testing.T) {
+	fmt.Println("Test_int2prs")
 	var dtest = []struct {
 		s string
 		u int
 	}{
-		{"0.01", 2},
+		{"0.01", 1},
 		{"0.25", 25},
 		{"0.99", 99},
 		{"1.02", 102},
@@ -70,6 +69,7 @@ func Test_int2prs(t *testing.T) {
 }
 
 func Test_int2dat(t *testing.T) {
+	fmt.Println("Test_int2dat")
 	var dtest = []struct {
 		s string
 		u int
@@ -88,6 +88,7 @@ func Test_int2dat(t *testing.T) {
 }
 
 func Test_int2dath(t *testing.T) {
+	fmt.Println("Test_int2dath")
 	var dtest = []struct {
 		s string
 		u int
@@ -106,6 +107,8 @@ func Test_int2dath(t *testing.T) {
 }
 
 func Test_str2dat(t *testing.T) {
+	fmt.Println("Test_str2dat")
+
 	var dtest = []struct {
 		s string
 		u int
@@ -126,6 +129,7 @@ func Test_str2dat(t *testing.T) {
 }
 
 func Test_formatInt(t *testing.T) {
+	fmt.Println("Test_formatInt")
 	var dtest = []struct {
 		s string
 		u int
@@ -136,7 +140,7 @@ func Test_formatInt(t *testing.T) {
 		{"1.000", 1000},
 		{"21.000", 21000},
 		{"321.001", 321001},
-		{"1321.001", 1321001},
+		{"1.321.001", 1321001},
 	}
 
 	for _, tt := range dtest {

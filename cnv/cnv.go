@@ -29,6 +29,7 @@ import (
 )
 
 const timeLayout = "2006-01-02 15:04:05"
+const timeLayoutT = "2006-01-02T15:04:05"
 
 var locUTC, _ = time.LoadLocation("UTC")
 var locLOC, _ = time.LoadLocation("Local")
@@ -53,6 +54,25 @@ func LfillStr(s, ch string, le int) string {
 	}
 }
 
+// Time2Str #
+func Time2Str(t time.Time) string {
+	return t.Format(timeLayout)
+}
+
+// Str2Time #
+func Str2Time(s string) time.Time {
+	var r time.Time
+	if len(s) > 18 {
+		if s[10:11] == "T" {
+			r, _ = time.Parse(timeLayoutT, s[:19])
+		} else {
+			r, _ = time.Parse(timeLayout, s[:19])
+		}
+	}
+
+	return r
+}
+
 // Unix2LocalTimeStr #
 func Unix2LocalTimeStr(ut int64) string {
 	t := time.Unix(ut, 0).In(locLOC)
@@ -65,13 +85,19 @@ func Unix2UTCTimeStr(ut int64) string {
 	return t.Format(timeLayout)
 }
 
+// Unix2UTCTimeStrT #
+func Unix2UTCTimeStrT(ut int64) string {
+	t := time.Unix(ut, 0).In(locUTC)
+	return t.Format(timeLayoutT)
+}
+
 // TimeUTC2Unix #
 func TimeUTC2Unix(s string) int64 {
 	if len(s) < 19 {
 		return time.Now().In(locUTC).Unix()
 	}
 
-	t, _ := time.Parse(timeLayout, s[:19])
+	t := Str2Time(s)
 	return t.Unix()
 }
 
