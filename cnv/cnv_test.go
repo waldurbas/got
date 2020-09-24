@@ -151,3 +151,11 @@ func Test_formatInt(t *testing.T) {
 		}
 	}
 }
+
+func Test_UUID(t *testing.T) {
+	fmt.Println("Test_UUID")
+
+	buid := cnv.UUID()
+	suid := cnv.UUID36(string(buid))
+	fmt.Println("Test_UUID:", suid)
+}
