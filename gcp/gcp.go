@@ -37,9 +37,9 @@ var FileLocation = "europe-west3"
 
 // FileEntry #
 type FileEntry struct {
-	FileName string    `json:"filename"`
-	Size     int64     `json:"size"`
-	FTime    time.Time `json:"ftime"`
+	FileName string `json:"filename"`
+	Size     int64  `json:"size"`
+	FTime    int64  `json:"ftime"`
 }
 
 // GCPbucket #
@@ -163,7 +163,7 @@ func (b *GCPbucket) ListRoot() *[]FileEntry {
 			return nil
 		}
 
-		f := FileEntry{FileName: fa.Name, FTime: fa.Created}
+		f := FileEntry{FileName: fa.Name, FTime: fa.Created.Unix()}
 
 		files = append(files, f)
 	}
@@ -240,7 +240,7 @@ func (b *GCPbucket) listFiles(dirName string, startIx int, delim string) (*[]Fil
 			continue
 		}
 
-		f := &FileEntry{FileName: fa.Name, Size: fa.Size, FTime: fa.CustomTime}
+		f := &FileEntry{FileName: fa.Name, Size: fa.Size, FTime: fa.CustomTime.Unix()}
 		if startIx > -1 {
 			f.FileName = strings.ReplaceAll(f.FileName[startIx:], "/", "")
 		}
@@ -326,7 +326,7 @@ func (b *GCPbucket) FileStat(filePath string) (*FileEntry, error) {
 		return nil, err
 	}
 
-	return &FileEntry{FileName: fa.Name, Size: fa.Size, FTime: fa.CustomTime}, nil
+	return &FileEntry{FileName: fa.Name, Size: fa.Size, FTime: fa.CustomTime.Unix()}, nil
 }
 
 // FileStatDump #
@@ -373,7 +373,7 @@ func (f *FileEntry) IsDir() bool {
 
 // Print #
 func (f *FileEntry) Print(fullname bool) {
-	fmt.Print(f.FTime.Format("2006-01-02 15:04"))
+	fmt.Print(time.Unix(f.FTime, 0).Format("2006-01-02 15:04"))
 
 	if fullname {
 		if f.IsDir() {
