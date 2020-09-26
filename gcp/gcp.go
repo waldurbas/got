@@ -32,8 +32,8 @@ import (
 	"google.golang.org/api/option"
 )
 
-// FileLocation #default europe-west3
-var FileLocation = "europe-west3"
+// FileLocation #default eu
+var FileLocation = "eu"
 
 // FileEntry #
 type FileEntry struct {
@@ -42,14 +42,19 @@ type FileEntry struct {
 	FTime    int64  `json:"ftime"`
 }
 
+// GCPclient #
+type GCPclient struct {
+	projectID string
+	credFile  string
+	client    *storage.Client
+}
+
 // GCPbucket #
 type GCPbucket struct {
 	w          io.Writer
-	projectID  string
-	credFile   string
 	bucketName string
 	bhandle    *storage.BucketHandle
-	client     *storage.Client
+	cli        *GCPclient
 	ctx        context.Context
 }
 
@@ -65,40 +70,45 @@ func GetCurrentProjectID() (string, error) {
 	return s, err
 }
 
-// New #instance
-func New(projectID string, bucketName string, credFile string) (*GCPbucket, error) {
-	b := &GCPbucket{
-		w:          os.Stderr,
-		projectID:  projectID,
-		credFile:   credFile,
-		bucketName: bucketName,
-		ctx:        context.Background(),
+// NewClient #instance
+func NewClient(projectID string, credFile string) (*GCPclient, error) {
+	cli := &GCPclient{
+		projectID: projectID,
+		credFile:  credFile,
 	}
 
 	var err error
+	ctx := context.Background()
 
 	if len(credFile) > 0 {
-		b.client, err = storage.NewClient(b.ctx, option.WithCredentialsFile(credFile))
+		cli.client, err = storage.NewClient(ctx, option.WithCredentialsFile(credFile))
 	} else {
-		b.client, err = storage.NewClient(b.ctx)
+		cli.client, err = storage.NewClient(ctx)
 	}
 	if err != nil {
 		return nil, err
 	}
 
-	b.bhandle = b.client.Bucket(b.bucketName)
+	return cli, nil
+}
+
+// NewBucket #instance
+func NewBucket(cli *GCPclient, bucketName string, uniaccess bool) (*GCPbucket, error) {
+	b := &GCPbucket{
+		w:          os.Stderr,
+		cli:        cli,
+		bucketName: bucketName,
+		ctx:        context.Background(),
+	}
+
+	b.bhandle = b.cli.client.Bucket(b.bucketName)
 
 	// check if bucket exists
-	if _, err := b.bhandle.Attrs(b.ctx); err != nil {
-
-		ctx, cancel := context.WithTimeout(b.ctx, time.Second*10)
-		defer cancel()
-
-		if err := b.bhandle.Create(ctx, b.projectID, &storage.BucketAttrs{Location: FileLocation}); err != nil {
+	if !b.BucketExists(bucketName) {
+		err := b.BucketCreate(bucketName, uniaccess)
+		if err != nil {
 			return nil, err
 		}
-
-		b.bhandle = b.client.Bucket(b.bucketName)
 	}
 
 	return b, nil
@@ -106,13 +116,16 @@ func New(projectID string, bucketName string, credFile string) (*GCPbucket, erro
 
 // Close #
 func (b *GCPbucket) Close() {
-	b.client.Close()
+	b.cli.client.Close()
 }
 
 // BucketExists #
 func (b *GCPbucket) BucketExists(bucketName string) bool {
-	bh := b.client.Bucket(bucketName)
-	if _, err := bh.Attrs(b.ctx); err != nil {
+	ctx, cancel := context.WithTimeout(b.ctx, time.Second*10)
+	defer cancel()
+
+	bh := b.cli.client.Bucket(bucketName)
+	if _, err := bh.Attrs(ctx); err != nil {
 		return false
 	}
 
@@ -120,21 +133,63 @@ func (b *GCPbucket) BucketExists(bucketName string) bool {
 }
 
 // BucketCreate #
-func (b *GCPbucket) BucketCreate(bucketName string) error {
-	bucket := b.client.Bucket(bucketName)
+func (b *GCPbucket) BucketCreate(bucketName string, uniaccess bool) error {
+	b.bucketName = bucketName
+	b.bhandle = b.cli.client.Bucket(b.bucketName)
 
 	ctx, cancel := context.WithTimeout(b.ctx, time.Second*10)
 	defer cancel()
 
-	if err := bucket.Create(ctx, b.projectID, &storage.BucketAttrs{
+	if err := b.bhandle.Create(ctx, b.cli.projectID, &storage.BucketAttrs{
 		//		StorageClass: "COLDLINE",
 		Location: FileLocation,
 	}); err != nil {
 		return err
 	}
 
-	b.bucketName = bucketName
-	b.bhandle = b.client.Bucket(b.bucketName)
+	err := b.SetUniformAccess(uniaccess)
+	return err
+}
+
+// SetUniformAccess #einheitlichwer zugriff auf bucketebene
+func (b *GCPbucket) SetUniformAccess(enabled bool) error {
+	ctx, cancel := context.WithTimeout(b.ctx, time.Second*10)
+	defer cancel()
+
+	a, err := b.bhandle.Attrs(ctx)
+	if err != nil {
+		return err
+	}
+
+	uac := a.UniformBucketLevelAccess
+	if uac.Enabled == enabled {
+		return nil
+	}
+
+	acs := storage.BucketAttrsToUpdate{
+		UniformBucketLevelAccess: &storage.UniformBucketLevelAccess{
+			Enabled: enabled,
+		},
+	}
+
+	if _, err := b.bhandle.Update(ctx, acs); err != nil {
+		return err
+	}
+
+	b.printf("Bucketlevel-Access\n")
+	a, err = b.bhandle.Attrs(ctx)
+	if err != nil {
+		return err
+	}
+
+	uac = a.UniformBucketLevelAccess
+	if uac.Enabled {
+		b.printf("Uniform bucket-level access is enabled for %q.\n", a.Name)
+		b.printf("Bucket will be locked on %q.\n", uac.LockedTime)
+	} else {
+		b.printf("Uniform bucket-level access is not enabled for %q.\n", a.Name)
+	}
+
 	return nil
 }
 
@@ -142,7 +197,7 @@ func (b *GCPbucket) BucketCreate(bucketName string) error {
 func (b *GCPbucket) BucketRemove(bucketName string) error {
 	ctx, cancel := context.WithTimeout(b.ctx, time.Second*10)
 	defer cancel()
-	if err := b.client.Bucket(bucketName).Delete(ctx); err != nil {
+	if err := b.cli.client.Bucket(bucketName).Delete(ctx); err != nil {
 		return err
 	}
 
@@ -153,7 +208,7 @@ func (b *GCPbucket) BucketRemove(bucketName string) error {
 func (b *GCPbucket) ListRoot() *[]FileEntry {
 	files := []FileEntry{}
 
-	it := b.client.Buckets(b.ctx, b.projectID)
+	it := b.cli.client.Buckets(b.ctx, b.cli.projectID)
 	for {
 		fa, err := it.Next()
 		if err == iterator.Done {
@@ -373,7 +428,7 @@ func (f *FileEntry) IsDir() bool {
 
 // Print #
 func (f *FileEntry) Print(fullname bool) {
-	fmt.Print(time.Unix(f.FTime, 0).Format("2006-01-02 15:04"))
+	fmt.Print(time.Unix(f.FTime, 0).Format("2006-01-02 15:04:05"))
 
 	if fullname {
 		if f.IsDir() {
