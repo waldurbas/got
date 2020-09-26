@@ -46,7 +46,7 @@ type FileEntry struct {
 type GCPclient struct {
 	projectID string
 	credFile  string
-	client    *storage.Client
+	Client    *storage.Client
 }
 
 // GCPbucket #
@@ -81,9 +81,9 @@ func NewClient(projectID string, credFile string) (*GCPclient, error) {
 	ctx := context.Background()
 
 	if len(credFile) > 0 {
-		cli.client, err = storage.NewClient(ctx, option.WithCredentialsFile(credFile))
+		cli.Client, err = storage.NewClient(ctx, option.WithCredentialsFile(credFile))
 	} else {
-		cli.client, err = storage.NewClient(ctx)
+		cli.Client, err = storage.NewClient(ctx)
 	}
 	if err != nil {
 		return nil, err
@@ -92,16 +92,21 @@ func NewClient(projectID string, credFile string) (*GCPclient, error) {
 	return cli, nil
 }
 
+// Close #
+func (c *GCPclient) Close() {
+	c.Client.Close()
+}
+
 // NewBucket #instance
 func NewBucket(cli *GCPclient, bucketName string, uniaccess bool) (*GCPbucket, error) {
 	b := &GCPbucket{
 		w:          os.Stderr,
 		cli:        cli,
 		bucketName: bucketName,
-		ctx:        context.Background(),
 	}
 
-	b.bhandle = b.cli.client.Bucket(b.bucketName)
+	b.bhandle = b.cli.Client.Bucket(b.bucketName)
+	b.ctx = context.Background()
 
 	// check if bucket exists
 	if !b.BucketExists(bucketName) {
@@ -114,17 +119,12 @@ func NewBucket(cli *GCPclient, bucketName string, uniaccess bool) (*GCPbucket, e
 	return b, nil
 }
 
-// Close #
-func (b *GCPbucket) Close() {
-	b.cli.client.Close()
-}
-
 // BucketExists #
 func (b *GCPbucket) BucketExists(bucketName string) bool {
 	ctx, cancel := context.WithTimeout(b.ctx, time.Second*10)
 	defer cancel()
 
-	bh := b.cli.client.Bucket(bucketName)
+	bh := b.cli.Client.Bucket(bucketName)
 	if _, err := bh.Attrs(ctx); err != nil {
 		return false
 	}
@@ -135,7 +135,7 @@ func (b *GCPbucket) BucketExists(bucketName string) bool {
 // BucketCreate #
 func (b *GCPbucket) BucketCreate(bucketName string, uniaccess bool) error {
 	b.bucketName = bucketName
-	b.bhandle = b.cli.client.Bucket(b.bucketName)
+	b.bhandle = b.cli.Client.Bucket(b.bucketName)
 
 	ctx, cancel := context.WithTimeout(b.ctx, time.Second*10)
 	defer cancel()
@@ -197,7 +197,7 @@ func (b *GCPbucket) SetUniformAccess(enabled bool) error {
 func (b *GCPbucket) BucketRemove(bucketName string) error {
 	ctx, cancel := context.WithTimeout(b.ctx, time.Second*10)
 	defer cancel()
-	if err := b.cli.client.Bucket(bucketName).Delete(ctx); err != nil {
+	if err := b.cli.Client.Bucket(bucketName).Delete(ctx); err != nil {
 		return err
 	}
 
@@ -206,9 +206,12 @@ func (b *GCPbucket) BucketRemove(bucketName string) error {
 
 // ListRoot #
 func (b *GCPbucket) ListRoot() *[]FileEntry {
+	ctx, cancel := context.WithTimeout(b.ctx, time.Second*10)
+	defer cancel()
+
 	files := []FileEntry{}
 
-	it := b.cli.client.Buckets(b.ctx, b.cli.projectID)
+	it := b.cli.Client.Buckets(ctx, b.cli.projectID)
 	for {
 		fa, err := it.Next()
 		if err == iterator.Done {
