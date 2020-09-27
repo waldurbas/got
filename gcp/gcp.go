@@ -98,7 +98,7 @@ func (c *GCPclient) Close() {
 }
 
 // NewBucket #instance
-func NewBucket(cli *GCPclient, bucketName string, uniaccess bool) (*GCPbucket, error) {
+func NewBucket(cli *GCPclient, bucketName string) (*GCPbucket, error) {
 	b := &GCPbucket{
 		w:          os.Stderr,
 		cli:        cli,
@@ -110,7 +110,7 @@ func NewBucket(cli *GCPclient, bucketName string, uniaccess bool) (*GCPbucket, e
 
 	// check if bucket exists
 	if !b.BucketExists(bucketName) {
-		err := b.BucketCreate(bucketName, uniaccess)
+		err := b.BucketCreate(bucketName)
 		if err != nil {
 			return nil, err
 		}
@@ -133,7 +133,7 @@ func (b *GCPbucket) BucketExists(bucketName string) bool {
 }
 
 // BucketCreate #
-func (b *GCPbucket) BucketCreate(bucketName string, uniaccess bool) error {
+func (b *GCPbucket) BucketCreate(bucketName string) error {
 	b.bucketName = bucketName
 	b.bhandle = b.cli.Client.Bucket(b.bucketName)
 
@@ -147,8 +147,7 @@ func (b *GCPbucket) BucketCreate(bucketName string, uniaccess bool) error {
 		return err
 	}
 
-	err := b.SetUniformAccess(uniaccess)
-	return err
+	return nil
 }
 
 // SetUniformAccess #einheitlichwer zugriff auf bucketebene
