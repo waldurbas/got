@@ -271,7 +271,7 @@ func (b *GCPbucket) listFiles(dirName string, startIx int, delim string) (*[]Fil
 	defer cancel()
 
 	if len(dirName) < 1 {
-		return nil, errors.New("dirName length to short..")
+		return nil, errors.New("dirName length to short")
 	}
 
 	var qry *storage.Query

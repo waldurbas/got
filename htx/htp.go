@@ -23,6 +23,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/waldurbas/got/lgx"
@@ -40,6 +41,45 @@ type HtReq struct {
 // HtReqMap #
 type HtReqMap struct {
 	m map[string]interface{}
+}
+
+// ReqParams #
+type ReqParams struct {
+	qry map[string]string
+}
+
+// ReqQuery #
+func ReqQuery(r *http.Request) *ReqParams {
+	v := &ReqParams{}
+	v.qry = make(map[string]string)
+
+	qry, err := url.ParseQuery(r.URL.RawQuery)
+	if err == nil {
+		if qry != nil {
+			for kk, vv := range qry {
+				v.qry[kk] = vv[0]
+			}
+		}
+	}
+
+	return v
+}
+
+// Exists #
+func (m *ReqParams) Exists(key string) bool {
+	_, ok := m.qry[key]
+	return ok
+}
+
+// Value #
+func (m *ReqParams) Value(key string) string {
+	v, _ := m.qry[key]
+	return v
+}
+
+// Items #
+func (m *ReqParams) Items() map[string]string {
+	return m.qry
 }
 
 // WriteResponseMsg #

@@ -169,7 +169,9 @@ func ParalellDownloadFile(url string, toFile string) error {
 			req.Header.Add("Range", rangeHeader)
 
 			r, _ := client.Do(req)
-			defer r.Body.Close()
+			defer func() {
+				r.Body.Close()
+			}()
 
 			b, _ := ioutil.ReadAll(r.Body)
 			body[i] = string(b)
