@@ -87,7 +87,7 @@ func WriteResponseMsg(from string, w http.ResponseWriter, statusCode int, status
 	if statusCode == 200 {
 		lgx.PrintDebug(from, "OK")
 	} else {
-		lgx.PrintDebug(from, statusStr)
+		lgx.PrintError(from, statusStr)
 	}
 
 	WriteResponse(w, statusCode, map[string]interface{}{"message": statusStr})
