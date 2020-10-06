@@ -80,12 +80,12 @@ func Param(ix int, def string) string {
 
 // Value #
 func Value(sKey string, def string) string {
-	lKey, ok := ValueExist(sKey)
+	val, ok := ValueExist(sKey)
 	if !ok {
 		return def
 	}
 
-	return glo.xargs[lKey]
+	return val
 }
 
 // KeyExist #
@@ -119,7 +119,7 @@ func Exists(sKeys []string) bool {
 func ValueExist(sKey string) (string, bool) {
 	lKey := strings.ToLower(sKey)
 	v, ok := glo.xargs[lKey]
-	return lKey, ok && len(v) > 0
+	return v, ok && len(v) > 0
 }
 
 // AsInt #
