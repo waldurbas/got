@@ -559,6 +559,23 @@ func GetVersion(ss string) string {
 		strconv.Itoa(v[3])
 }
 
+// GetVersionAsInt #
+func GetVersionAsInt(ss string) int {
+
+	s := strings.Split(ss, ".")
+
+	if len(s) != 4 {
+		return 0
+	}
+
+	v := 0
+	for i := 0; i < 4; i++ {
+		v = v*100 + EsubStr2Int(s[i], 0, 4)
+	}
+
+	return v
+}
+
 // PermitWeekDay for
 func PermitWeekDay(t time.Time, sDays []string) bool {
 	ih := int(t.Weekday())
