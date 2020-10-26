@@ -109,6 +109,13 @@ func FTime() string {
 		t.Hour(), t.Minute(), t.Second())
 }
 
+// STime  #asString for Log
+func STime(t time.Time) string {
+	return fmt.Sprintf("%d-%02d-%02d %02d:%02d:%02d ",
+		t.Year(), t.Month(), t.Day(),
+		t.Hour(), t.Minute(), t.Second())
+}
+
 // TimeDif #
 func TimeDif(tA time.Time, tL time.Time) (xs int, hh int, mm int, ss int) {
 	dif := tL.Sub(tA)
