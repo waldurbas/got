@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -131,4 +132,10 @@ func LoadFiles(path, match string) (*[]FileInfo, error) {
 	})
 
 	return &files, nil
+}
+
+// ChangeFileExt #
+func ChangeFileExt(sfile string, newext string) string {
+	ext := path.Ext(sfile)
+	return sfile[0:len(sfile)-len(ext)] + newext
 }
