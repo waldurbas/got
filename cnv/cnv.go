@@ -59,6 +59,11 @@ func Time2Str(t time.Time) string {
 	return t.Format(timeLayout)
 }
 
+// Time2StrT #
+func Time2StrT(t time.Time) string {
+	return t.Format(timeLayoutT)
+}
+
 // Str2Time #
 func Str2Time(s string) time.Time {
 	var r time.Time
