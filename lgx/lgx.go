@@ -23,12 +23,21 @@ package lgx
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
+)
+
+var (
+	// Version #go build -ldflags "-X build.xVersion=$Version"
+	xVersion string
+
+	// Sversion #wird benoetigt für Usage
+	Sversion string
 )
 
 // Lgx #
@@ -494,4 +503,45 @@ func SearchFilesOlderAs(dir string, days int) *[]string {
 	})
 
 	return &files
+}
+
+// StartLog #Parameter
+// out: os.stderr || os.stdout
+// prgName: z.B.: "test"
+// cpyRight: z.B.: "(c) 2020 by Waldemar Urbas"
+//----------------------------------------------------------
+// logfile unter {logdir}/{JAMO}/{prgname}{YYMMDD}.log
+func StartLog(out *os.File, prgName string, cpyRight string, logDir string) {
+	ldir := logDir
+	prop := 0
+
+	iGCP, e := strconv.Atoi(os.Getenv("GCP"))
+	if e != nil || iGCP > 0 {
+		bb, err := ioutil.ReadFile("./version.txt")
+		if err == nil {
+			xVersion = string(bb)
+		}
+
+		ldir = ""
+		prop |= LgxGcp
+	}
+
+	if ldir != "" {
+		prop |= LgxFile
+	}
+
+	s := strings.Split(xVersion, ".")
+	if len(s) != 4 {
+		xVersion = "0.0.0.0"
+	}
+
+	Sversion = prgName + " Version " + xVersion + " " + cpyRight
+
+	Start(out, Sversion, prop, ldir, prgName)
+	PrintNL()
+}
+
+// Version #
+func Version() string {
+	return xVersion
 }

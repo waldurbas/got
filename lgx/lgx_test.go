@@ -1,6 +1,8 @@
 package lgx_test
 
 import (
+	"fmt"
+	"os"
 	"testing"
 	"time"
 
@@ -29,4 +31,11 @@ func Test_Path(t *testing.T) {
 			t.Errorf("PathJoin: soll %s, ist %s", tt.u, ss)
 		}
 	}
+}
+
+func Test_Log(t *testing.T) {
+	lgx.Sversion = "9.11.24.1"
+	lgx.StartLog(os.Stderr, "TestApp", "(c) 2020 by Waldemar Urbas", "")
+	fmt.Println("Info:", lgx.Sversion)
+	//GOOS=linux GOARCH=amd64 go build -ldflags "-X github.com/waldurbas/lgx/lgx.xVersion=`cat version.txt`" -o $@
 }
