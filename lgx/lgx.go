@@ -511,8 +511,8 @@ func SearchFilesOlderAs(dir string, days int) *[]string {
 // cpyRight: z.B.: "(c) 2020 by Waldemar Urbas"
 //----------------------------------------------------------
 // logfile unter {logdir}/{JAMO}/{prgname}{YYMMDD}.log
-func StartLog(out *os.File, prgName string, cpyRight string, logDir string) {
-	ldir := logDir
+func StartLog(out *os.File, prgName string, cpyRight string) {
+	ldir := os.Getenv("LOGDIR")
 	prop := 0
 
 	iGCP, e := strconv.Atoi(os.Getenv("GCP"))
