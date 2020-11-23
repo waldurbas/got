@@ -516,7 +516,7 @@ func StartLog(out *os.File, prgName string, cpyRight string) {
 	prop := 0
 
 	iGCP, e := strconv.Atoi(os.Getenv("GCP"))
-	if e != nil || iGCP > 0 {
+	if e == nil || iGCP > 0 {
 		bb, err := ioutil.ReadFile("./version.txt")
 		if err == nil {
 			xVersion = string(bb)
