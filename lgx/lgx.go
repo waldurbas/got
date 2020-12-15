@@ -508,12 +508,12 @@ func SearchFilesOlderAs(dir string, days int) *[]string {
 
 // StartLog #Parameter
 // out: os.stderr || os.stdout
+// ldir: z.B.: /usr/firma/log
 // prgName: z.B.: "test"
 // cpyRight: z.B.: "(c) 2020 by Waldemar Urbas"
 //----------------------------------------------------------
-// logfile unter {logdir}/{JAMO}/{prgname}{YYMMDD}.log
-func StartLog(out *os.File, prgName string, cpyRight string) {
-	ldir := os.Getenv("LOGDIR")
+// logfile unter {ldir}/{JAMO}/{prgname}{YYMMDD}.log
+func StartLog(out *os.File, ldir string, prgName string, cpyRight string) {
 	prop := 0
 
 	iGCP, e := strconv.Atoi(os.Getenv("GCP"))

@@ -35,7 +35,7 @@ func Test_Path(t *testing.T) {
 
 func Test_Log(t *testing.T) {
 	lgx.Sversion = "9.11.24.1"
-	lgx.StartLog(os.Stderr, "TestApp", "(c) 2020 by Waldemar Urbas", "")
+	lgx.StartLog(os.Stderr, "/tmp", "TestApp", "(c) 2020 by Waldemar Urbas")
 	fmt.Println("Info:", lgx.Sversion)
 	//GOOS=linux GOARCH=amd64 go build -ldflags "-X github.com/waldurbas/lgx/lgx.xVersion=`cat version.txt`" -o $@
 }
