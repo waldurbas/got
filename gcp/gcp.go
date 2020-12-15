@@ -38,7 +38,7 @@ var FileLocation = "eu"
 // FileEntry #
 type FileEntry struct {
 	FileName string `json:"filename"`
-	Size     int64  `json:"size"`
+	Size     int    `json:"size"`
 	FTime    int64  `json:"ftime"`
 }
 
@@ -297,7 +297,7 @@ func (b *GCPbucket) listFiles(dirName string, startIx int, delim string) (*[]Fil
 			continue
 		}
 
-		f := &FileEntry{FileName: fa.Name, Size: fa.Size, FTime: fa.CustomTime.Unix()}
+		f := &FileEntry{FileName: fa.Name, Size: int(fa.Size), FTime: fa.CustomTime.Unix()}
 		if startIx > -1 {
 			f.FileName = strings.ReplaceAll(f.FileName[startIx:], "/", "")
 		}
@@ -383,7 +383,7 @@ func (b *GCPbucket) FileStat(filePath string) (*FileEntry, error) {
 		return nil, err
 	}
 
-	return &FileEntry{FileName: fa.Name, Size: fa.Size, FTime: fa.CustomTime.Unix()}, nil
+	return &FileEntry{FileName: fa.Name, Size: int(fa.Size), FTime: fa.CustomTime.Unix()}, nil
 }
 
 // FileStatDump #
@@ -436,14 +436,14 @@ func (f *FileEntry) Print(fullname bool) {
 		if f.IsDir() {
 			fmt.Printf("%10s    %s\n", "<DIR>", f.FileName)
 		} else {
-			fmt.Printf("%12s  %s\n", cnv.FormatInt64(f.Size), f.FileName)
+			fmt.Printf("%12s  %s\n", cnv.FormatInt(f.Size), f.FileName)
 		}
 
 	} else {
 		if f.IsDir() {
 			fmt.Printf("%10s    %s\n", "<DIR>", f.DirName())
 		} else {
-			fmt.Printf("%12s  %s\n", cnv.FormatInt64(f.Size), f.BaseName())
+			fmt.Printf("%12s  %s\n", cnv.FormatInt(f.Size), f.BaseName())
 		}
 	}
 }
