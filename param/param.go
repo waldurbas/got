@@ -39,7 +39,9 @@ func init() {
 	for _, v := range os.Args[1:] {
 		if v[0] == '-' || v[0] == '/' {
 			prev = strings.ToLower(v[1:2])
-			if prev == "q" || prev == "x" {
+
+			if (prev == "q" || prev == "x" || prev == "u") && len(v) > 2 && v[2:3] != "=" {
+				//				fmt.Println("prev", prev, "value=", v[2:])
 				glo.xargs[prev] = v[2:]
 			} else {
 				ix := strings.Index(v, "=")
