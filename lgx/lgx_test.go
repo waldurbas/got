@@ -2,7 +2,9 @@ package lgx_test
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
+	"path"
 	"testing"
 	"time"
 
@@ -34,8 +36,12 @@ func Test_Path(t *testing.T) {
 }
 
 func Test_Log(t *testing.T) {
-	lgx.Sversion = "9.11.24.1"
-	lgx.StartLog(os.Stderr, "/tmp", "TestApp", "(c) 2020 by Waldemar Urbas")
+	vf := lgx.PathJoin(path.Dir(os.Args[0]), "version.txt")
+	fmt.Print("arg[0]: ", os.Args[0], ", vf: ", vf)
+
+	ioutil.WriteFile(vf, []byte("1.2.3.4"), 0666)
+
+	os.Setenv("GCP", "1")
+	lgx.StartLog(os.Stderr, "/tmp", "(c) 2020 by Waldemar Urbas")
 	fmt.Println("Info:", lgx.Sversion)
-	//GOOS=linux GOARCH=amd64 go build -ldflags "-X github.com/waldurbas/lgx/lgx.xVersion=`cat version.txt`" -o $@
 }

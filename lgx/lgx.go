@@ -11,6 +11,7 @@ package lgx
 // ----------------------------------------------------------------------------------
 // HISTORY
 //-----------------------------------------------------------------------------------
+// 2020.12.16 (wu) prgName bei StartLog wird automatisch ermittelt
 // 2020.09.09 (wu) Info in Start without Datetime
 // 2020.08.29 (wu) PrintLN
 // 2020.07.20 (wu) PathSplit for Windows
@@ -25,6 +26,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path"
 	"path/filepath"
 	"runtime"
 	"strconv"
@@ -34,7 +36,7 @@ import (
 )
 
 var (
-	// Version #go build -ldflags "-X build.xVersion=$Version"
+	// Version #go build -ldflags "-X lgx.xVersion=$Version"
 	xVersion string
 
 	// Sversion #wird benoetigt für Usage
@@ -509,12 +511,15 @@ func SearchFilesOlderAs(dir string, days int) *[]string {
 // StartLog #Parameter
 // out: os.stderr || os.stdout
 // ldir: z.B.: /usr/firma/log
-// prgName: z.B.: "test"
 // cpyRight: z.B.: "(c) 2020 by Waldemar Urbas"
 //----------------------------------------------------------
 // logfile unter {ldir}/{JAMO}/{prgname}{YYMMDD}.log
-func StartLog(out *os.File, ldir string, prgName string, cpyRight string) {
+func StartLog(out *os.File, ldir string, cpyRight string) {
 	prop := 0
+
+	// prgName automatisch ermitteln u. trim Extension
+	prgName := path.Base(os.Args[0])
+	prgName = strings.TrimSuffix(prgName, path.Ext(prgName))
 
 	iGCP, e := strconv.Atoi(os.Getenv("GCP"))
 	if e == nil || iGCP > 0 {
