@@ -521,11 +521,15 @@ func StartLog(out *os.File, ldir string, cpyRight string) {
 	prgName := path.Base(os.Args[0])
 	prgName = strings.TrimSuffix(prgName, path.Ext(prgName))
 
+	s := strings.Split(xVersion, ".")
+
 	iGCP, e := strconv.Atoi(os.Getenv("GCP"))
 	if e == nil || iGCP > 0 {
-		bb, err := ioutil.ReadFile("./version.txt")
-		if err == nil {
-			xVersion = string(bb)
+		if len(s) != 4 {
+			bb, err := ioutil.ReadFile("./version.txt")
+			if err == nil {
+				xVersion = string(bb)
+			}
 		}
 
 		ldir = ""
@@ -536,7 +540,6 @@ func StartLog(out *os.File, ldir string, cpyRight string) {
 		prop |= LgxFile
 	}
 
-	s := strings.Split(xVersion, ".")
 	if len(s) != 4 {
 		xVersion = "0.0.0.0"
 	}
