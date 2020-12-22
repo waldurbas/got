@@ -37,11 +37,11 @@ func init() {
 
 	var prev string
 	for _, v := range os.Args[1:] {
+		//		fmt.Printf("\narg: [%v]", v)
 		if v[0] == '-' || v[0] == '/' {
 			prev = strings.ToLower(v[1:2])
 
-			if (prev == "q" || prev == "x" || prev == "u") && len(v) > 2 && (strings.Index(v, "=") < 0 || v[2:3] == `"`) {
-				//				fmt.Println("prev", prev, "value=", v[2:])
+			if prev == "q" || ((prev == "x" || prev == "u") && len(v) > 2 && strings.Index(v, "=") < 0) {
 				glo.xargs[prev] = v[2:]
 			} else {
 				ix := strings.Index(v, "=")

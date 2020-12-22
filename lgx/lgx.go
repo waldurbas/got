@@ -41,6 +41,9 @@ var (
 
 	// Sversion #wird benoetigt für Usage
 	Sversion string
+
+	// PrgName #ProgrammName ohne Ext.
+	PrgName string
 )
 
 // Lgx #
@@ -518,8 +521,8 @@ func StartLog(out *os.File, ldir string, cpyRight string) {
 	prop := 0
 
 	// prgName automatisch ermitteln u. trim Extension
-	prgName := path.Base(os.Args[0])
-	prgName = strings.TrimSuffix(prgName, path.Ext(prgName))
+	PrgName = path.Base(os.Args[0])
+	PrgName = strings.TrimSuffix(PrgName, path.Ext(PrgName))
 
 	s := strings.Split(xVersion, ".")
 
@@ -544,9 +547,9 @@ func StartLog(out *os.File, ldir string, cpyRight string) {
 		xVersion = "0.0.0.0"
 	}
 
-	Sversion = prgName + " Version " + xVersion + " " + cpyRight
+	Sversion = PrgName + " Version " + xVersion + " " + cpyRight
 
-	Start(out, Sversion, prop, ldir, prgName)
+	Start(out, Sversion, prop, ldir, PrgName)
 	PrintNL()
 }
 
