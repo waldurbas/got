@@ -54,7 +54,8 @@ type Lgx struct {
 	buf        []byte
 	logDir     string
 	logFilePfx string
-	curDir     string
+	curDir     string // current Directory
+	excName    string // execname without Directory
 }
 
 // LGX_STD #Standard mit Time
@@ -71,13 +72,28 @@ const (
 
 // New #
 func New(out io.Writer, prop int) *Lgx {
-	sdir, _ := PathSplit(os.Args[0])
-	return &Lgx{out: out, prop: prop, curDir: sdir}
+	// currentDir and execName automatisch ermitteln
+	s, err := os.Executable()
+	if err != nil {
+		s = os.Args[0]
+	}
+
+	sdir, exName := PathSplit(s)
+
+	// prgName without Extension
+	PrgName = strings.TrimSuffix(exName, path.Ext(exName))
+
+	return &Lgx{out: out, prop: prop, curDir: sdir, excName: exName}
 }
 
 // CurDir #
 func (p *Lgx) CurDir() string {
 	return p.curDir
+}
+
+// ExecName #
+func (p *Lgx) ExecName() string {
+	return p.excName
 }
 
 // SetOutput #output destination for the logger.
@@ -207,6 +223,11 @@ var IsDebug = false
 // CurDir #
 func CurDir() string {
 	return std.curDir
+}
+
+// ExecName #
+func ExecName() string {
+	return std.excName
 }
 
 // Println #
@@ -519,10 +540,6 @@ func SearchFilesOlderAs(dir string, days int) *[]string {
 // logfile unter {ldir}/{JAMO}/{prgname}{YYMMDD}.log
 func StartLog(out *os.File, ldir string, cpyRight string) {
 	prop := 0
-
-	// prgName automatisch ermitteln u. trim Extension
-	PrgName = path.Base(os.Args[0])
-	PrgName = strings.TrimSuffix(PrgName, path.Ext(PrgName))
 
 	s := strings.Split(xVersion, ".")
 
