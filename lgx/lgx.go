@@ -11,6 +11,7 @@ package lgx
 // ----------------------------------------------------------------------------------
 // HISTORY
 //-----------------------------------------------------------------------------------
+// 2020.12.29 (wu) add LogDir(),ExecName()
 // 2020.12.16 (wu) prgName bei StartLog wird automatisch ermittelt
 // 2020.09.09 (wu) Info in Start without Datetime
 // 2020.08.29 (wu) PrintLN
@@ -84,16 +85,6 @@ func New(out io.Writer, prop int) *Lgx {
 	PrgName = strings.TrimSuffix(exName, path.Ext(exName))
 
 	return &Lgx{out: out, prop: prop, curDir: sdir, excName: exName}
-}
-
-// CurDir #
-func (p *Lgx) CurDir() string {
-	return p.curDir
-}
-
-// ExecName #
-func (p *Lgx) ExecName() string {
-	return p.excName
 }
 
 // SetOutput #output destination for the logger.
@@ -223,6 +214,11 @@ var IsDebug = false
 // CurDir #
 func CurDir() string {
 	return std.curDir
+}
+
+// LogDir #
+func LogDir() string {
+	return std.logDir
 }
 
 // ExecName #

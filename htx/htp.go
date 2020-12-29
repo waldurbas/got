@@ -11,6 +11,7 @@ package htx
 // ----------------------------------------------------------------------------------
 // HISTORY
 //-----------------------------------------------------------------------------------
+// 2020.12.29 (wu) Add TryRequest
 // 2020.09.09 (wu) Patch function,Request. 1.st Param is the Method
 // 2020.09.06 (wu) WriteResponse
 // 2020.07.25 (wu) HtReqMap
@@ -135,6 +136,25 @@ func Patch(url string, token string, jsData *[]byte) *HtReq {
 // Delete #
 func Delete(url string, token string, jsData *[]byte) *HtReq {
 	return Request("DELETE", url, token, jsData)
+}
+
+// TryRequest #
+func TryRequest(method string, url string, token string, jsData *[]byte) *HtReq {
+	lastWait := 1
+	for {
+		rr := Request(method, url, token, jsData)
+		if rr.StatusCode > 499 && rr.StatusCode < 510 {
+			if lastWait > 16 {
+				return rr
+			}
+
+			time.Sleep(time.Duration(lastWait) * time.Second)
+			lastWait = lastWait * 2
+			continue
+		}
+
+		return rr
+	}
 }
 
 // Request #
