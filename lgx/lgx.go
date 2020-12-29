@@ -218,7 +218,12 @@ func CurDir() string {
 
 // LogDir #
 func LogDir() string {
-	return std.logDir
+	t := time.Now()
+	sti := fmt.Sprintf("%d%02d", t.Year(), t.Month())
+	sLog := PathJoin(std.logDir, sti[:4], sti[4:])
+	CreateDirIfNotExist(sLog)
+
+	return sLog
 }
 
 // ExecName #
