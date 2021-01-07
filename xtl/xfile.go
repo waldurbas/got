@@ -1,6 +1,8 @@
 package xtl
 
 import (
+	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -22,6 +24,7 @@ import (
 // ----------------------------------------------------------------------------------
 // HISTORY
 //-----------------------------------------------------------------------------------
+// 2021.01.07 (wu) func LoadFile(sfile string) (*FileData, error)
 // 2020.08.29 (wu) Add MoveFile, LoadFiles
 // 2018.12.11 (wu) Init
 //-----------------------------------------------------------------------------------
@@ -99,6 +102,62 @@ type FileInfo struct {
 	FileName string
 	Size     int64
 	Time     time.Time
+}
+
+// FileData #
+type FileData struct {
+	FileName string
+	Size     int64
+	Time     int64
+	Data     []byte
+}
+
+const timewebLayout = "2006-01-02T15:04:05"
+
+var locUTC *time.Location
+
+// UTCTime #
+func (fd *FileData) UTCTime() string {
+	if locUTC == nil {
+		locUTC, _ = time.LoadLocation("UTC")
+	}
+	return time.Unix(fd.Time, 0).In(locUTC).Format(timewebLayout)
+}
+
+// LoadFile #
+func LoadFile(sfile string) (*FileData, error) {
+
+	stat, err := os.Stat(sfile)
+	if os.IsNotExist(err) {
+		return nil, err
+	}
+
+	if stat.IsDir() {
+		return nil, errors.New("is not a file")
+	}
+
+	file, err := os.Open(sfile)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	cf := &FileData{
+		FileName: sfile,
+		Size:     stat.Size(),
+		Time:     stat.ModTime().Unix(),
+	}
+
+	cf.Data = make([]byte, cf.Size)
+
+	buffer := bufio.NewReader(file)
+	_, err = buffer.Read(cf.Data)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return cf, nil
 }
 
 // LoadFiles #
