@@ -2,7 +2,7 @@ package param
 
 // ----------------------------------------------------------------------------------
 // param.go (https://github.com/waldurbas/got)
-// Copyright 2019,2020 by Waldemar Urbas
+// Copyright 2019,2021 by Waldemar Urbas
 //-----------------------------------------------------------------------------------
 // This Source Code Form is subject to the terms of the 'MIT License'
 // A short and simple permissive license with conditions only requiring
@@ -11,6 +11,7 @@ package param
 // ----------------------------------------------------------------------------------
 // HISTORY
 //-----------------------------------------------------------------------------------
+// 2021.01.28 (wu) Printparams
 // 2020.08.29 (wu) CheckVersion
 // 2020.02.10 (wu) Init
 //-----------------------------------------------------------------------------------
@@ -159,14 +160,15 @@ func CheckVersion() bool {
 
 }
 
-// Print #
-func Print() {
-	fmt.Println("\n--> xParams:")
+// PrintParams #
+func PrintParams() string {
+
+	s := fmt.Sprintln("\n--> xParams:")
 	for i, v := range glo.xargsWithOut {
-		fmt.Printf("%d. [%s]\n", i, v)
+		s += fmt.Sprintf("%d. [%s]\n", i, v)
 	}
 
-	fmt.Println("----------------------------")
+	s += fmt.Sprintln("----------------------------")
 
 	var sk []string
 	for k := range glo.xargs {
@@ -175,9 +177,16 @@ func Print() {
 	sort.Strings(sk)
 
 	for _, k := range sk {
-		fmt.Printf("%-16.16s: [%s]\n", k, glo.xargs[k])
+		s += fmt.Sprintf("%-16.16s: [%s]\n", k, glo.xargs[k])
 	}
-	fmt.Print("\n\n")
+	s += fmt.Sprint("\n\n")
+
+	return s
+}
+
+// Print #
+func Print() {
+	fmt.Fprint(os.Stderr, PrintParams())
 }
 
 // Debug #
