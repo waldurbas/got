@@ -2,6 +2,8 @@ package xtl
 
 import (
 	"bufio"
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -10,6 +12,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -24,6 +27,7 @@ import (
 // ----------------------------------------------------------------------------------
 // HISTORY
 //-----------------------------------------------------------------------------------
+// 2021.02.11 (wu) LoadStructFromFile,SaveStructToFile
 // 2021.01.07 (wu) func LoadFile(sfile string) (*FileData, error)
 // 2020.08.29 (wu) Add MoveFile, LoadFiles
 // 2018.12.11 (wu) Init
@@ -197,4 +201,61 @@ func LoadFiles(path, match string) (*[]FileInfo, error) {
 func ChangeFileExt(sfile string, newext string) string {
 	ext := path.Ext(sfile)
 	return sfile[0:len(sfile)-len(ext)] + newext
+}
+
+// FuncUnMarshal #
+type FuncUnMarshal func(r io.Reader, v interface{}) error
+
+// FuncMarshal #
+type FuncMarshal func(v interface{}) (io.Reader, error)
+
+var lockF sync.Mutex
+
+// LoadStructFromFile #
+func LoadStructFromFile(sFile string, v interface{}, fu FuncUnMarshal) error {
+	lockF.Lock()
+	defer lockF.Unlock()
+
+	f, err := os.Open(sFile)
+	if err != nil {
+		return err
+	}
+
+	defer f.Close()
+
+	if fu != nil {
+		return fu(f, v)
+	}
+
+	return json.NewDecoder(f).Decode(v)
+}
+
+// SaveStructToFile #
+func SaveStructToFile(sFile string, v interface{}, fu FuncMarshal) error {
+	lockF.Lock()
+	defer lockF.Unlock()
+
+	f, err := os.Create(sFile)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	if fu != nil {
+		ir, err := fu(f)
+		if err != nil {
+			return err
+		}
+
+		_, err = io.Copy(f, ir)
+		return err
+	}
+
+	b, err := json.MarshalIndent(v, "", "\t")
+	if err != nil {
+		return err
+	}
+
+	_, err = io.Copy(f, bytes.NewReader(b))
+	return err
 }
