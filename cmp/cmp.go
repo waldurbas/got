@@ -11,10 +11,13 @@ package cmp
 // ----------------------------------------------------------------------------------
 // HISTORY
 //-----------------------------------------------------------------------------------
+// 2021.02.11 (wu) add StrXcmp
 // 2020.07.02 (wu) Init
 //-----------------------------------------------------------------------------------
 
-import "strings"
+import (
+	"strings"
+)
 
 // StrIndexOfI #Ignore
 func StrIndexOfI(str string, needle string) int {
@@ -74,4 +77,50 @@ func StrComp(a, b string) int {
 	}
 
 	return 1
+}
+
+func c2lower(c rune) rune {
+	if 'A' <= c && c <= 'Z' {
+		return c + 'a' - 'A'
+	}
+
+	switch c {
+	case 'Ä':
+		return 'ä'
+	case 'Ö':
+		return 'ö'
+	case 'Ü':
+		return 'ü'
+	}
+
+	return c
+}
+
+// StrIxcmp #
+// compare two strings case insensitiv
+func StrIxcmp(a, b string) int {
+	ra := []rune(a)
+	rb := []rune(b)
+	ale := len(ra)
+	ble := len(rb)
+
+	i := 0
+	for ; i < ale && i < ble; i++ {
+		ac := c2lower(ra[i])
+		bc := c2lower(rb[i])
+
+		if ac != bc {
+			return int(ac - bc)
+		}
+	}
+
+	if i < ale {
+		return 1
+	}
+
+	if i < ble {
+		return -1
+	}
+
+	return 0
 }
