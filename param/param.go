@@ -226,3 +226,8 @@ func GetEnv(key, defval string) string {
 func Xargs() map[string]string {
 	return glo.xargs
 }
+
+// Count #
+func Count() int {
+	return len(glo.xargs)
+}
