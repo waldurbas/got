@@ -1,5 +1,10 @@
 package dat
 
+import (
+	"fmt"
+	"time"
+)
+
 // ----------------------------------------------------------------------------------
 // dat.go (https://github.com/waldurbas/got)
 // Copyright 2020 by Waldemar Urbas
@@ -102,4 +107,25 @@ func MkDate(dat int, dif int) int {
 
 func schaltJahr(j int) bool {
 	return (j%4 == 0 && j%100 != 0) || j%400 == 0
+}
+
+// PrintTimeDuration #
+func PrintTimeDuration(dt time.Duration) string {
+	inSek := int(dt / 1000000000)
+	hh := inSek / 3600
+	mm := inSek % 3600
+	ss := mm % 60
+	mm /= 60
+
+	dd := hh / 24
+	if dd > 0 {
+		hh %= 24
+	}
+
+	stime := fmt.Sprintf("%.2d:%.2d:%.2d", hh, mm, ss)
+	if dd > 0 {
+		stime = fmt.Sprintf("%dd %.2d:%.2d:%.2d", dd, hh, mm, ss)
+	}
+
+	return stime
 }
