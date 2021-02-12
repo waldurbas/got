@@ -41,7 +41,7 @@ func Test_StrXcmp(t *testing.T) {
 
 	for _, item := range items {
 
-		r := cmp.StrXcmp(item.a, item.b)
+		r := cmp.StrIxcmp(item.a, item.b)
 
 		if r != item.r {
 			t.Errorf("StrXcmp: a:(%s), b:(%s): ist %d, soll %d", item.a, item.b, r, item.r)
