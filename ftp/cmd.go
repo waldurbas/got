@@ -160,7 +160,7 @@ func (f *Ftp) newFtpCon() (net.Conn, error) {
 	//	addr := host + ":" + strconv.Itoa(port)
 	addr := net.JoinHostPort(host, strconv.Itoa(port))
 
-	conn, e := net.DialTimeout("tcp", addr, 10*time.Second)
+	conn, e := net.DialTimeout("tcp", addr, time.Duration(f.Timeout)*time.Second)
 	if e != nil {
 		return nil, e
 	}

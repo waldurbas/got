@@ -319,6 +319,19 @@ func EsubStr2Int(s string, ix int, ilen int) int {
 	return z * f
 }
 
+// IsNummeric #
+func IsNummeric(s string) bool {
+	b := []byte(s)
+
+	for i := 0; i < len(b); i++ {
+		if b[i] < '0' || b[i] > '9' {
+			return false
+		}
+	}
+
+	return true
+}
+
 // Str2Dates #
 func Str2Dates(s string) (int, int) {
 	var (

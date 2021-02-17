@@ -28,13 +28,14 @@ import (
 // Ftp #
 type Ftp struct {
 	con      *textproto.Conn
+	Timeout  int
 	Host     string
 	skipEPSV bool
 	mFeat    map[string]string
 }
 
 // Connect #
-func Connect(conStr string) (*Ftp, error) {
+func Connect(conStr string, timeout int) (*Ftp, error) {
 	//conStr := user + ":" + pwd + "@" + host
 
 	ss := strings.Split(conStr, "@")
@@ -51,7 +52,7 @@ func Connect(conStr string) (*Ftp, error) {
 	user := ss[0]
 	pwd := ss[1]
 
-	f, err := DialFtp(host)
+	f, err := DialFtp(host, timeout)
 
 	if err != nil {
 		return nil, err
@@ -66,7 +67,7 @@ func Connect(conStr string) (*Ftp, error) {
 }
 
 // DialFtp #
-func DialFtp(addr string) (*Ftp, error) {
+func DialFtp(addr string, timeout int) (*Ftp, error) {
 	conn, err := net.DialTimeout("tcp", addr, 10*time.Second)
 
 	if err != nil {
@@ -77,9 +78,10 @@ func DialFtp(addr string) (*Ftp, error) {
 	var srcConn io.ReadWriteCloser = conn
 
 	f := &Ftp{
-		con:   textproto.NewConn(srcConn),
-		Host:  rAddr.IP.String(),
-		mFeat: make(map[string]string),
+		con:     textproto.NewConn(srcConn),
+		Host:    rAddr.IP.String(),
+		mFeat:   make(map[string]string),
+		Timeout: timeout,
 	}
 	_, _, err = f.con.ReadResponse(220)
 	if err != nil {
