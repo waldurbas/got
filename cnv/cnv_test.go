@@ -1,8 +1,8 @@
 package cnv_test
 
 // ----------------------------------------------------------------------------------
-// cnv_test.go (https://github.com/waldurbas/got)
-// Copyright 2019,2020 by Waldemar Urbas
+// cnv_test.go (haps://github.com/waldurbas/got)
+// Copyright 2019,2021 by Waldemar Urbas
 //-----------------------------------------------------------------------------------
 // This Source Code Form is subject to the terms of the 'MIT License'
 // A short and simple permissive license with conditions only requiring
@@ -11,6 +11,7 @@ package cnv_test
 // ----------------------------------------------------------------------------------
 // HISTORY
 //-----------------------------------------------------------------------------------
+// 2021.02.21 (wu) IsDigit,IsAlpha
 // 2019.11.24 (wu) Init
 //-----------------------------------------------------------------------------------
 
@@ -22,8 +23,7 @@ import (
 )
 
 func Test_checkTime(t *testing.T) {
-	fmt.Println("Test_checkTime")
-	var dtest = []struct {
+	var ar = []struct {
 		s string
 		u int64
 	}{
@@ -33,23 +33,22 @@ func Test_checkTime(t *testing.T) {
 		{"2020-05-27 07:24:06", 1590564246},
 	}
 
-	for _, tt := range dtest {
-		u := cnv.TimeUTC2Unix(tt.s)
+	for _, a := range ar {
+		u := cnv.TimeUTC2Unix(a.s)
 
-		if u != tt.u {
-			t.Errorf("TimeUTC2Unix(%s): soll %d, ist %d", tt.s, tt.u, u)
+		if u != a.u {
+			t.Errorf("TimeUTC2Unix(%s): soll %d, ist %d", a.s, a.u, u)
 		}
 
 		s := cnv.Unix2UTCTimeStr(u)
 		st := cnv.Unix2UTCTimeStrT(u)
-		if s != tt.s && st != tt.s {
-			t.Errorf("Unix2UTCTimeStr(%d): soll %s, ist %s", u, tt.s, s)
+		if s != a.s && st != a.s {
+			t.Errorf("Unix2UTCTimeStr(%d): soll %s, ist %s", u, a.s, s)
 		}
 	}
 }
 
 func Test_checkFTime(t *testing.T) {
-	fmt.Println("Test_checkFTime")
 	s := cnv.FTime()
 	d := cnv.DatAsInt()
 	ss := fmt.Sprintf("%08d", d)
@@ -59,8 +58,7 @@ func Test_checkFTime(t *testing.T) {
 }
 
 func Test_int2prs(t *testing.T) {
-	fmt.Println("Test_int2prs")
-	var dtest = []struct {
+	var ar = []struct {
 		s string
 		u int
 	}{
@@ -73,18 +71,17 @@ func Test_int2prs(t *testing.T) {
 		{"1024.95", 102495},
 	}
 
-	for _, tt := range dtest {
-		ss := cnv.Int2Prs(tt.u)
+	for _, a := range ar {
+		ss := cnv.Int2Prs(a.u)
 
-		if ss != tt.s {
-			t.Errorf("Int2Prs(%d): soll %s, ist %s", tt.u, tt.s, ss)
+		if ss != a.s {
+			t.Errorf("Int2Prs(%d): soll %s, ist %s", a.u, a.s, ss)
 		}
 	}
 }
 
 func Test_int2dat(t *testing.T) {
-	fmt.Println("Test_int2dat")
-	var dtest = []struct {
+	var ar = []struct {
 		s string
 		u int
 	}{
@@ -92,18 +89,17 @@ func Test_int2dat(t *testing.T) {
 		{"2000-01-01", 20000101},
 	}
 
-	for _, tt := range dtest {
-		ss := cnv.Int2Dat(tt.u)
+	for _, a := range ar {
+		ss := cnv.Int2Dat(a.u)
 
-		if ss != tt.s {
-			t.Errorf("Int2Dat(%d): soll %s, ist %s", tt.u, tt.s, ss)
+		if ss != a.s {
+			t.Errorf("Int2Dat(%d): soll %s, ist %s", a.u, a.s, ss)
 		}
 	}
 }
 
 func Test_int2dath(t *testing.T) {
-	fmt.Println("Test_int2dath")
-	var dtest = []struct {
+	var ar = []struct {
 		s string
 		u int
 	}{
@@ -111,19 +107,17 @@ func Test_int2dath(t *testing.T) {
 		{"01-01-2000", 20000101},
 	}
 
-	for _, tt := range dtest {
-		ss := cnv.Int2DatHuman(tt.u)
+	for _, a := range ar {
+		ss := cnv.Int2DatHuman(a.u)
 
-		if ss != tt.s {
-			t.Errorf("Int2DatHuman(%d): soll %s, ist %s", tt.u, tt.s, ss)
+		if ss != a.s {
+			t.Errorf("Int2DatHuman(%d): soll %s, ist %s", a.u, a.s, ss)
 		}
 	}
 }
 
 func Test_str2dat(t *testing.T) {
-	fmt.Println("Test_str2dat")
-
-	var dtest = []struct {
+	var ar = []struct {
 		s string
 		u int
 	}{
@@ -133,18 +127,17 @@ func Test_str2dat(t *testing.T) {
 		{"1.02.2010", 20100201},
 	}
 
-	for _, tt := range dtest {
-		uu := cnv.Str2Dat(tt.s)
+	for _, a := range ar {
+		uu := cnv.Str2Dat(a.s)
 
-		if uu != tt.u {
-			t.Errorf("Str2dat(%s): soll %d, ist %d", tt.s, tt.u, uu)
+		if uu != a.u {
+			t.Errorf("Str2dat(%s): soll %d, ist %d", a.s, a.u, uu)
 		}
 	}
 }
 
 func Test_formatInt(t *testing.T) {
-	fmt.Println("Test_formatInt")
-	var dtest = []struct {
+	var ar = []struct {
 		s string
 		u int
 	}{
@@ -157,19 +150,77 @@ func Test_formatInt(t *testing.T) {
 		{"1.321.001", 1321001},
 	}
 
-	for _, tt := range dtest {
-		ss := cnv.FormatInt(tt.u)
+	for _, a := range ar {
+		ss := cnv.FormatInt(a.u)
 
-		if ss != tt.s {
-			t.Errorf("FormatInt(%d): soll %s, ist %s", tt.u, tt.s, ss)
+		if ss != a.s {
+			t.Errorf("FormatInt(%d): soll %s, ist %s", a.u, a.s, ss)
 		}
 	}
 }
 
 func Test_UUID(t *testing.T) {
-	fmt.Println("Test_UUID")
-
 	buid := cnv.UUID()
 	suid := cnv.UUID36(string(buid))
-	fmt.Println("Test_UUID:", suid)
+	fmt.Println("UUID:", suid)
+}
+
+func Test_Md5(t *testing.T) {
+	var ar = []struct {
+		s string
+		c string
+	}{
+		{"abc", "900150983cd24fb0d6963f7d28e17f72"},
+		{"next_2021", "4cef39adf6f590ef99f7e20335909ca9"},
+	}
+
+	for _, a := range ar {
+		b := []byte(a.s)
+		c := cnv.Md5HexString(&b)
+		fmt.Println("Md5HexString:", a.s, "c:", c)
+		if c != a.c {
+			t.Errorf("Md5HexString('%s'): soll '%s', ist '%s'", a.s, a.c, c)
+		}
+	}
+}
+
+func Test_IsDigit(t *testing.T) {
+	var ar = []struct {
+		s  string
+		sa string
+		ok bool
+	}{
+		{"1234567890737", "", true},
+		{"12345678++-90737", "", false},
+		{"12345678-90737", "-", true},
+	}
+
+	for _, a := range ar {
+		ok := cnv.IsDigit(a.s, a.sa)
+		fmt.Printf("IsDigit(%s)(%s) -> %v\n", a.s, a.sa, ok)
+		if ok != a.ok {
+			t.Errorf("IsDigit('%s'): soll %v, ist %v", a.s, a.ok, ok)
+		}
+	}
+}
+
+func Test_IsAlphanum(t *testing.T) {
+	var ar = []struct {
+		s  string
+		sa string
+		ok bool
+	}{
+		{"1234567äößü890737", "ßäöü", true},
+		{"1234567äößü890737", "ß", false},
+		{"123ab4X5678++-90737", "", false},
+		{"12345678-90737", "-", true},
+	}
+
+	for _, a := range ar {
+		ok := cnv.IsAlphaNum(a.s, a.sa)
+		fmt.Printf("IsAlphaNum(%s)(%s) -> %v\n", a.s, a.sa, ok)
+		if ok != a.ok {
+			t.Errorf("IsAlphaNum('%s'): soll %v, ist %v", a.s, a.ok, ok)
+		}
+	}
 }

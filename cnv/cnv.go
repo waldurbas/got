@@ -2,7 +2,7 @@ package cnv
 
 // ----------------------------------------------------------------------------------
 // cnv.go (https://github.com/waldurbas/got)
-// Copyright 2019,2020 by Waldemar Urbas
+// Copyright 2019,2021 by Waldemar Urbas
 //-----------------------------------------------------------------------------------
 // This Source Code Form is subject to the terms of the 'MIT License'
 // A short and simple permissive license with conditions only requiring
@@ -11,11 +11,13 @@ package cnv
 // ----------------------------------------------------------------------------------
 // HISTORY
 //-----------------------------------------------------------------------------------
+// 2021.02.21 (wu) IsDigit,IsAlpha,IsAlphaNum
 // 2020.07.19 (wu) PermitWeekday, Int2Prs, Int2DatHuman
 // 2019.11.24 (wu) Init
 //-----------------------------------------------------------------------------------
 
 import (
+	"bytes"
 	"crypto/md5"
 	"encoding/binary"
 	"encoding/hex"
@@ -319,13 +321,53 @@ func EsubStr2Int(s string, ix int, ilen int) int {
 	return z * f
 }
 
-// IsNummeric #
-func IsNummeric(s string) bool {
+// IsDigit #
+func IsDigit(s string, any string) bool {
 	b := []byte(s)
-
+	a := []byte(any)
 	for i := 0; i < len(b); i++ {
 		if b[i] < '0' || b[i] > '9' {
-			return false
+			if bytes.LastIndexByte(a, b[i]) == -1 {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
+// IsAlpha #
+func IsAlpha(s string, any string) bool {
+	b := []byte(s)
+	a := []byte(any)
+
+	for i := 0; i < len(b); i++ {
+		if b[i] < 'A' || b[i] > 'Z' {
+			if b[i] < 'a' || b[i] > 'z' {
+				if bytes.LastIndexByte(a, b[i]) == -1 {
+					return false
+				}
+			}
+		}
+	}
+
+	return true
+}
+
+// IsAlphaNum #
+func IsAlphaNum(s string, any string) bool {
+	b := []byte(s)
+	a := []byte(any)
+
+	for i := 0; i < len(b); i++ {
+		if b[i] < 'A' || b[i] > 'Z' {
+			if b[i] < 'a' || b[i] > 'z' {
+				if b[i] < '0' || b[i] > '9' {
+					if bytes.LastIndexByte(a, b[i]) == -1 {
+						return false
+					}
+				}
+			}
 		}
 	}
 
