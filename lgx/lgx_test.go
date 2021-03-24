@@ -41,7 +41,7 @@ func Test_Log(t *testing.T) {
 
 	ioutil.WriteFile(vf, []byte("1.2.3.4"), 0666)
 
-	//s.Setenv("GCP", "1")
+	os.Setenv("GCP", "1")
 	w := lgx.StartLog(os.Stderr, "/tmp", "(c) 2020 by Waldemar Urbas")
 	w.SetOutput(nil)
 	w.Print("nichts auf stdErr")
