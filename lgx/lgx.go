@@ -2,7 +2,7 @@ package lgx
 
 // ----------------------------------------------------------------------------------
 // lgx.go (https://github.com/waldurbas/got)
-// Copyright 2019,2020 by Waldemar Urbas
+// Copyright 2019,2021 by Waldemar Urbas
 //-----------------------------------------------------------------------------------
 // This Source Code Form is subject to the terms of the 'MIT License'
 // A short and simple permissive license with conditions only requiring
@@ -11,6 +11,7 @@ package lgx
 // ----------------------------------------------------------------------------------
 // HISTORY
 //-----------------------------------------------------------------------------------
+// 2020.03.24 (wu) func Write kompatibel mit io.Writer
 // 2020.12.29 (wu) add LogDir(),ExecName()
 // 2020.12.16 (wu) prgName bei StartLog wird automatisch ermittelt
 // 2020.09.09 (wu) Info in Start without Datetime
@@ -49,14 +50,15 @@ var (
 
 // Lgx #
 type Lgx struct {
-	mu         sync.Mutex // ensures atomic writes; protects the following fields
-	prop       int        // properties
-	out        io.Writer  // destination for output
-	buf        []byte
-	logDir     string
-	logFilePfx string
-	curDir     string // current Directory
-	excName    string // execname without Directory
+	mu          sync.Mutex // ensures atomic writes; protects the following fields
+	prop        int        // properties
+	out         io.Writer  // destination for output
+	buf         []byte
+	logDir      string
+	logFilePfx  string
+	curDir      string // current Directory
+	excName     string // execname without Directory
+	LogFileName string
 }
 
 // LGX_STD #Standard mit Time
@@ -85,6 +87,35 @@ func New(out io.Writer, prop int) *Lgx {
 	PrgName = strings.TrimSuffix(exName, path.Ext(exName))
 
 	return &Lgx{out: out, prop: prop, curDir: sdir, excName: exName}
+}
+
+// Write # as io.Writer // ohne Uhrzeit
+func (p *Lgx) Write(b []byte) (n int, err error) {
+	le := len(b)
+	if le > 0 {
+		t := time.Now()
+		sti := fmt.Sprintf("%d-%02d-%02d %02d:%02d:%02d ",
+			t.Year(), t.Month(), t.Day(),
+			t.Hour(), t.Minute(), t.Second())
+
+		if p.out != nil {
+			p.out.Write(b)
+		}
+
+		if (p.prop & LgxFile) == LgxFile {
+			sti = strings.ReplaceAll(sti[0:10], "-", "")
+			logFileName := PathJoin(p.logDir, sti[0:4], sti[4:6])
+			p.LogFileName = PathJoin(logFileName, p.logFilePfx+sti+".log")
+
+			if CreateDirIfNotExist(logFileName) != -1 {
+				appendFile(p.LogFileName, string(b))
+			}
+		}
+
+		return le, nil
+	}
+
+	return 0, nil
 }
 
 // SetOutput #output destination for the logger.
@@ -160,18 +191,21 @@ func (p *Lgx) _write(s string) string {
 		p.buf = append(p.buf, '\n')
 	}
 
-	p.out.Write(p.buf)
+	if p.out != nil {
+		p.out.Write(p.buf)
+	}
 
 	if (p.prop & LgxFile) == LgxFile {
+		sti = strings.ReplaceAll(sti[0:10], "-", "")
+		logFileName := PathJoin(p.logDir, sti[0:4], sti[4:6])
+		p.LogFileName = PathJoin(logFileName, p.logFilePfx+sti+".log")
+
 		if addNL && noNL {
 			p.buf = append(p.buf, '\n')
 		}
 
-		sti = strings.ReplaceAll(sti[0:10], "-", "")
-		logFileName := PathJoin(p.logDir, sti[0:4], sti[4:6])
 		if CreateDirIfNotExist(logFileName) != -1 {
-			logFileName = PathJoin(logFileName, p.logFilePfx+sti+".log")
-			appendFile(logFileName, string(p.buf))
+			appendFile(p.LogFileName, string(p.buf))
 		}
 	}
 
@@ -359,7 +393,7 @@ func PathJoin(elem ...string) string {
 }
 
 // Start #
-func Start(w io.Writer, info string, prop int, dir string, pfx string) {
+func Start(w io.Writer, info string, prop int, dir string, pfx string) *Lgx {
 	std.mu.Lock()
 	defer std.mu.Unlock()
 
@@ -376,6 +410,8 @@ func Start(w io.Writer, info string, prop int, dir string, pfx string) {
 	if len(info) > 0 {
 		std._write(NoTime + info)
 	}
+
+	return std
 }
 
 func printOut(w io.Writer, format string, v ...interface{}) {
@@ -539,7 +575,7 @@ func SearchFilesOlderAs(dir string, days int) *[]string {
 // cpyRight: z.B.: "(c) 2020 by Waldemar Urbas"
 //----------------------------------------------------------
 // logfile unter {ldir}/{JAMO}/{prgname}{YYMMDD}.log
-func StartLog(out *os.File, ldir string, cpyRight string) {
+func StartLog(out *os.File, ldir string, cpyRight string) *Lgx {
 	prop := 0
 
 	s := strings.Split(xVersion, ".")
@@ -569,6 +605,8 @@ func StartLog(out *os.File, ldir string, cpyRight string) {
 
 	Start(out, Sversion, prop, ldir, PrgName)
 	PrintNL()
+
+	return std
 }
 
 // Version #

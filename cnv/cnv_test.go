@@ -172,6 +172,8 @@ func Test_Md5(t *testing.T) {
 	}{
 		{"abc", "900150983cd24fb0d6963f7d28e17f72"},
 		{"next_2021", "4cef39adf6f590ef99f7e20335909ca9"},
+		{"91958", "05b603ae1983baaadf874a070f695788"},
+		{"erix2004", "bd91bbafa6b2731f8235c88927ed1b92"},
 	}
 
 	for _, a := range ar {
