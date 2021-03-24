@@ -54,10 +54,10 @@ type Lgx struct {
 	prop        int        // properties
 	out         io.Writer  // destination for output
 	buf         []byte
-	logDir      string
 	logFilePfx  string
 	curDir      string // current Directory
 	excName     string // execname without Directory
+	LogDir      string
 	LogFileName string
 }
 
@@ -104,7 +104,7 @@ func (p *Lgx) Write(b []byte) (n int, err error) {
 
 		if (p.prop & LgxFile) == LgxFile {
 			sti = strings.ReplaceAll(sti[0:10], "-", "")
-			logFileName := PathJoin(p.logDir, sti[0:4], sti[4:6])
+			logFileName := PathJoin(p.LogDir, sti[0:4], sti[4:6])
 			p.LogFileName = PathJoin(logFileName, p.logFilePfx+sti+".log")
 
 			if CreateDirIfNotExist(logFileName) != -1 {
@@ -197,7 +197,7 @@ func (p *Lgx) _write(s string) string {
 
 	if (p.prop & LgxFile) == LgxFile {
 		sti = strings.ReplaceAll(sti[0:10], "-", "")
-		logFileName := PathJoin(p.logDir, sti[0:4], sti[4:6])
+		logFileName := PathJoin(p.LogDir, sti[0:4], sti[4:6])
 		p.LogFileName = PathJoin(logFileName, p.logFilePfx+sti+".log")
 
 		if addNL && noNL {
@@ -245,6 +245,11 @@ var std = New(os.Stderr, 0)
 // IsDebug #
 var IsDebug = false
 
+// Default Logger
+func Default() *Lgx {
+	return std
+}
+
 // CurDir #
 func CurDir() string {
 	return std.curDir
@@ -254,7 +259,7 @@ func CurDir() string {
 func LogDir() string {
 	t := time.Now()
 	sti := fmt.Sprintf("%d%02d", t.Year(), t.Month())
-	sLog := PathJoin(std.logDir, sti[:4], sti[4:])
+	sLog := PathJoin(std.LogDir, sti[:4], sti[4:])
 	CreateDirIfNotExist(sLog)
 
 	return sLog
@@ -393,14 +398,14 @@ func PathJoin(elem ...string) string {
 }
 
 // Start #
-func Start(w io.Writer, info string, prop int, dir string, pfx string) *Lgx {
+func Start(w io.Writer, info string, prop int, dir string, pfx string) {
 	std.mu.Lock()
 	defer std.mu.Unlock()
 
 	IsDebug = atob(os.Getenv("DEBUG"))
 	std.prop = prop
 	std.out = w
-	std.logDir = dir
+	std.LogDir = dir
 	std.logFilePfx = pfx
 	if dir != "" {
 		std.prop |= LgxFile
@@ -410,8 +415,6 @@ func Start(w io.Writer, info string, prop int, dir string, pfx string) *Lgx {
 	if len(info) > 0 {
 		std._write(NoTime + info)
 	}
-
-	return std
 }
 
 func printOut(w io.Writer, format string, v ...interface{}) {
@@ -575,7 +578,7 @@ func SearchFilesOlderAs(dir string, days int) *[]string {
 // cpyRight: z.B.: "(c) 2020 by Waldemar Urbas"
 //----------------------------------------------------------
 // logfile unter {ldir}/{JAMO}/{prgname}{YYMMDD}.log
-func StartLog(out *os.File, ldir string, cpyRight string) *Lgx {
+func StartLog(out *os.File, ldir string, cpyRight string) {
 	prop := 0
 
 	s := strings.Split(xVersion, ".")
@@ -605,8 +608,6 @@ func StartLog(out *os.File, ldir string, cpyRight string) *Lgx {
 
 	Start(out, Sversion, prop, ldir, PrgName)
 	PrintNL()
-
-	return std
 }
 
 // Version #

@@ -41,12 +41,15 @@ func Test_Log(t *testing.T) {
 
 	ioutil.WriteFile(vf, []byte("1.2.3.4"), 0666)
 
-	os.Setenv("GCP", "1")
-	w := lgx.StartLog(os.Stderr, "/tmp", "(c) 2020 by Waldemar Urbas")
+	//os.Setenv("GCP", "1")
+	lgx.StartLog(os.Stderr, "/tmp/log", "(c) 2020,2021 by Waldemar Urbas")
+	w := lgx.Default()
 	w.SetOutput(nil)
 	w.Print("nichts auf stdErr")
 	fmt.Println("\nInfo:", lgx.Sversion)
+	fmt.Println("\nLogDir     :", w.LogDir)
 	fmt.Println("\nLogfileName:", w.LogFileName)
 	b, _ := ioutil.ReadFile(w.LogFileName)
 	fmt.Printf("\n[%v]\n", string(b))
+	os.RemoveAll(w.LogDir)
 }
