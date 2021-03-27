@@ -226,3 +226,26 @@ func Test_IsAlphanum(t *testing.T) {
 		}
 	}
 }
+
+func Test_parseTime(t *testing.T) {
+	ar := []string{
+		"24.11.1958",
+		"1962/03/11",
+		"1961.01.17",
+		"03.12.1997 10:12:01",
+		"2021.12.21 10:12:01",
+		"2021-12-21 10:12:01",
+		"2021-12-21T10:12:01",
+		"01:12:01",
+		"201-12-21#10:12:01",
+	}
+
+	fmt.Print("\n")
+	for _, s := range ar {
+		t := cnv.ParseTime(s, "")
+		fmt.Println(t, " -> ", s)
+		t = cnv.ParseTime(s, "UTC")
+		fmt.Println(t, " -> ", s)
+		fmt.Print("\n")
+	}
+}

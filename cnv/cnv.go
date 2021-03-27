@@ -11,6 +11,7 @@ package cnv
 // ----------------------------------------------------------------------------------
 // HISTORY
 //-----------------------------------------------------------------------------------
+// 2021.03.17 (wu) new Since,ParseTime
 // 2021.02.21 (wu) IsDigit,IsAlpha,IsAlphaNum
 // 2020.07.19 (wu) PermitWeekday, Int2Prs, Int2DatHuman
 // 2019.11.24 (wu) Init
@@ -30,11 +31,20 @@ import (
 	xguid "github.com/google/uuid"
 )
 
-const timeLayout = "2006-01-02 15:04:05"
-const timeLayoutT = "2006-01-02T15:04:05"
+const (
+	DT_YEA = "2006"
+	DT_MON = "01"
+	DT_DAY = "02"
+	DT_TIM = "15:04:05"
+)
 
-var locUTC, _ = time.LoadLocation("UTC")
-var locLOC, _ = time.LoadLocation("Local")
+const (
+	DT_DT  = DT_YEA + "-" + DT_MON + "-" + DT_DAY + " " + DT_TIM
+	DT_DTT = DT_YEA + "-" + DT_MON + "-" + DT_DAY + "T" + DT_TIM
+)
+
+var LocUTC, _ = time.LoadLocation("UTC")
+var LocLOC, _ = time.LoadLocation("Local")
 
 // RfillStr #
 func RfillStr(s, ch string, le int) string {
@@ -56,14 +66,58 @@ func LfillStr(s, ch string, le int) string {
 	}
 }
 
+// ParseTime #
+func ParseTime(v string, sLoc string) time.Time {
+	loc := LocLOC
+
+	if sLoc == "UTC" {
+		loc = LocUTC
+	}
+
+	sLay := ""
+
+	le := len(v)
+	switch le {
+	// time 12:34:45
+	case 8:
+		sLay = DT_TIM
+
+	// date 2021-03-04 | 2021.03.04 | 12.12.2020 |
+	case 10:
+		if v[2] == '.' || v[2] == '-' || v[2] == '/' {
+			sLay = DT_DAY + v[2:3] + DT_MON + v[2:3] + DT_YEA
+		} else if v[4] == '.' || v[4] == '-' || v[4] == '/' {
+			sLay = DT_YEA + v[4:5] + DT_MON + v[4:5] + DT_DAY
+		}
+
+		// sonst datetime 2021-03-04 12:01:59 | 04.04.2021 12:01:59
+	case 19:
+		if v[4] == '.' || v[4] == '-' || v[4] == '/' {
+			sLay = DT_YEA + v[4:5] + DT_MON + v[4:5] + DT_DAY + v[10:11] + DT_TIM
+		} else if v[2] == '.' || v[2] == '-' || v[2] == '/' {
+			sLay = DT_DAY + v[2:3] + DT_MON + v[2:3] + DT_YEA + v[10:11] + DT_TIM
+		}
+	default:
+		sLay = DT_YEA + "-" + DT_MON + "-" + DT_DAY + " " + DT_TIM
+	}
+
+	t, e := time.ParseInLocation(sLay, v, loc)
+
+	if e != nil {
+		return time.Unix(0, 0)
+	}
+
+	return t
+}
+
 // Time2Str #
 func Time2Str(t time.Time) string {
-	return t.Format(timeLayout)
+	return t.Format(DT_DT)
 }
 
 // Time2StrT #
 func Time2StrT(t time.Time) string {
-	return t.Format(timeLayoutT)
+	return t.Format(DT_DTT)
 }
 
 // Str2Time #
@@ -71,9 +125,9 @@ func Str2Time(s string) time.Time {
 	var r time.Time
 	if len(s) > 18 {
 		if s[10:11] == "T" {
-			r, _ = time.Parse(timeLayoutT, s[:19])
+			r, _ = time.Parse(DT_DTT, s[:19])
 		} else {
-			r, _ = time.Parse(timeLayout, s[:19])
+			r, _ = time.Parse(DT_DT, s[:19])
 		}
 	}
 
@@ -82,26 +136,26 @@ func Str2Time(s string) time.Time {
 
 // Unix2LocalTimeStr #
 func Unix2LocalTimeStr(ut int64) string {
-	t := time.Unix(ut, 0).In(locLOC)
-	return t.Format(timeLayout)
+	t := time.Unix(ut, 0).In(LocLOC)
+	return t.Format(DT_DT)
 }
 
 // Unix2UTCTimeStr #
 func Unix2UTCTimeStr(ut int64) string {
-	t := time.Unix(ut, 0).In(locUTC)
-	return t.Format(timeLayout)
+	t := time.Unix(ut, 0).In(LocUTC)
+	return t.Format(DT_DT)
 }
 
 // Unix2UTCTimeStrT #
 func Unix2UTCTimeStrT(ut int64) string {
-	t := time.Unix(ut, 0).In(locUTC)
-	return t.Format(timeLayoutT)
+	t := time.Unix(ut, 0).In(LocUTC)
+	return t.Format(DT_DTT)
 }
 
 // TimeUTC2Unix #
 func TimeUTC2Unix(s string) int64 {
 	if len(s) < 19 {
-		return time.Now().In(locUTC).Unix()
+		return time.Now().In(LocUTC).Unix()
 	}
 
 	t := Str2Time(s)
@@ -121,6 +175,12 @@ func STime(t time.Time) string {
 	return fmt.Sprintf("%d-%02d-%02d %02d:%02d:%02d ",
 		t.Year(), t.Month(), t.Day(),
 		t.Hour(), t.Minute(), t.Second())
+}
+
+// Since as Time
+func Since(tA time.Time) (time.Time, int64) {
+	seconds := int64(time.Since(tA).Seconds())
+	return time.Unix(seconds, 0).In(LocUTC), seconds
 }
 
 // TimeDif #
