@@ -42,6 +42,7 @@ func Test_Log(t *testing.T) {
 	ioutil.WriteFile(vf, []byte("1.2.3.4"), 0666)
 
 	//os.Setenv("GCP", "1")
+	lgx.SetVersion("1.1.2.4")
 	lgx.StartLog(os.Stderr, "/tmp/log", "(c) 2020,2021 by Waldemar Urbas")
 	w := lgx.Default()
 	w.SetOutput(nil)

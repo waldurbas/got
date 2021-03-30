@@ -11,6 +11,8 @@ package lgx
 // ----------------------------------------------------------------------------------
 // HISTORY
 //-----------------------------------------------------------------------------------
+// 2020.03.30 (wu) SetVersion
+//                 ab go 1.16 funktioniert -ldflags "-X lgx.xVersion=$Version" nicht mehr ??
 // 2020.03.24 (wu) func Write kompatibel mit io.Writer
 // 2020.12.29 (wu) add LogDir(),ExecName()
 // 2020.12.16 (wu) prgName bei StartLog wird automatisch ermittelt
@@ -613,6 +615,10 @@ func StartLog(out *os.File, ldir string, cpyRight string) {
 // Version #
 func Version() string {
 	return xVersion
+}
+
+func SetVersion(v string) {
+	xVersion = v
 }
 
 // Fprintln #
