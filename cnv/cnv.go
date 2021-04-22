@@ -185,20 +185,27 @@ func Since(tA time.Time) (time.Time, int64) {
 
 // TimeDif #
 func TimeDif(tA time.Time, tL time.Time) (xs int, hh int, mm int, ss int) {
-	dif := tL.Sub(tA)
-	hh = int(dif.Hours())
-	mm = int(dif.Minutes())
-	ss = int(dif.Seconds())
-	xs = ss
+	yA, _, _ := tA.Date()
+	yL, _, _ := tL.Date()
 
-	if hh > 0 {
-		mm -= hh * 60
-		ss -= hh * 3600
+	if yA < 1970 {
+		tA = time.Date(1970, 1, 1, tA.Hour(), tA.Minute(), tA.Second(), 0, time.UTC)
 	}
 
-	if mm > 0 {
-		ss -= mm * 60
+	if yL < 1970 {
+		tL = time.Date(1970, 1, 1, tL.Hour(), tL.Minute(), tL.Second(), 0, time.UTC)
 	}
+
+	dif := int(tL.Sub(tA) / time.Second)
+	xs = dif
+	hh = dif / 3600
+
+	dif -= hh * 3600
+	mm = dif / 60
+	dif -= mm * 60
+	ss = dif % 60
+
+	hh %= 24
 
 	return
 }

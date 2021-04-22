@@ -18,9 +18,35 @@ package cnv_test
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/waldurbas/got/cnv"
 )
+
+func Test_checkTimeDif(t *testing.T) {
+	var ar = []struct {
+		t  string
+		xs int
+		hh int
+		mm int
+		ss int
+	}{
+		{"23:59:06", 86346, 23, 59, 6},
+		{"00:22:01", 1321, 0, 22, 1},
+		{"02:01:01", 7261, 2, 1, 1},
+		{"00:01:06", 66, 0, 1, 6},
+	}
+
+	z := time.Unix(0, 0).UTC()
+	for _, a := range ar {
+		r, _ := time.Parse(cnv.DT_TIM, a.t)
+		xs, hh, mm, ss := cnv.TimeDif(z, r)
+		if a.xs != xs || a.hh != hh || a.mm != mm || a.ss != ss {
+			t.Errorf("TimeDif(%s): soll %d, ist %d", a.t, a.xs, xs)
+		}
+
+	}
+}
 
 func Test_checkTime(t *testing.T) {
 	var ar = []struct {
