@@ -183,6 +183,27 @@ func Since(tA time.Time) (time.Time, int64) {
 	return time.Unix(seconds, 0).In(LocUTC), seconds
 }
 
+// Time2Sec #
+func Time2Sec(t time.Time) (xs int, hh int, mm int, ss int) {
+	y, _, _ := t.Date()
+	if y < 1970 {
+		t = time.Date(1970, 1, 1, t.Hour(), t.Minute(), t.Second(), 0, time.UTC)
+	}
+
+	dif := int(t.Unix())
+	xs = dif
+	hh = dif / 3600
+
+	dif -= hh * 3600
+	mm = dif / 60
+	dif -= mm * 60
+	ss = dif % 60
+
+	hh %= 24
+
+	return
+}
+
 // TimeDif #
 func TimeDif(tA time.Time, tL time.Time) (xs int, hh int, mm int, ss int) {
 	yA, _, _ := tA.Date()
