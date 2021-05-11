@@ -47,10 +47,12 @@ func Test_Log(t *testing.T) {
 	w := lgx.Default()
 	w.SetOutput(nil)
 	w.Print("nichts auf stdErr")
+	w.Printf("newline:[%s]", lgx.NewLine)
 	fmt.Println("\nInfo:", lgx.Sversion)
 	fmt.Println("\nLogDir     :", w.LogDir)
 	fmt.Println("\nLogfileName:", w.LogFileName)
 	b, _ := ioutil.ReadFile(w.LogFileName)
 	fmt.Printf("\n[%v]\n", string(b))
+	fmt.Printf("NewLine[%v]\n", lgx.NewLine)
 	os.RemoveAll(w.LogDir)
 }

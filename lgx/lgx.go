@@ -48,6 +48,11 @@ var (
 
 	// PrgName #ProgrammName ohne Ext.
 	PrgName string
+
+	// NewLine
+	NewLine string
+	CRchar  string
+	LFchar  string
 )
 
 // Lgx #
@@ -74,6 +79,17 @@ const (
 	NoTime = "!~!"
 	NoNL   = '#'
 )
+
+func init() {
+	CRchar = string([]byte{13})
+	LFchar = string([]byte{10})
+
+	if runtime.GOOS == "windows" {
+		NewLine = string([]byte{13, 10})
+	} else {
+		NewLine = string([]byte{10})
+	}
+}
 
 // New #
 func New(out io.Writer, prop int) *Lgx {
@@ -190,7 +206,7 @@ func (p *Lgx) _write(s string) string {
 	ss := string(p.buf)
 
 	if addNL && !noNL {
-		p.buf = append(p.buf, '\n')
+		p.buf = append(p.buf, NewLine...)
 	}
 
 	if p.out != nil {
@@ -203,7 +219,7 @@ func (p *Lgx) _write(s string) string {
 		p.LogFileName = PathJoin(logFileName, p.logFilePfx+sti+".log")
 
 		if addNL && noNL {
-			p.buf = append(p.buf, '\n')
+			p.buf = append(p.buf, NewLine...)
 		}
 
 		if CreateDirIfNotExist(logFileName) != -1 {
@@ -423,7 +439,7 @@ func printOut(w io.Writer, format string, v ...interface{}) {
 
 	s := fmt.Sprintf(format, v...)
 	if s == "" {
-		Fprintf(w, "\n")
+		Fprintf(w, NewLine)
 	} else {
 		Fprintf(w, s)
 	}
@@ -431,7 +447,7 @@ func printOut(w io.Writer, format string, v ...interface{}) {
 
 // PrintNL #
 func PrintNL() {
-	Fprintf(std.out, "\n")
+	Fprintf(std.out, NewLine)
 }
 
 // PrintStderr #
@@ -623,21 +639,16 @@ func SetVersion(v string) {
 
 // Fprintln #
 func Fprintln(w io.Writer, a ...interface{}) {
-	if runtime.GOOS == "windows" {
-		fmt.Fprint(w, a...)
-		fmt.Fprint(w, "\r\n")
-		return
-	}
-
-	fmt.Fprintln(w, a...)
+	fmt.Fprint(w, a...)
+	fmt.Fprint(w, NewLine)
 }
 
 // Fprintf #
 func Fprintf(w io.Writer, format string, a ...interface{}) {
 	if runtime.GOOS == "windows" {
 		s := fmt.Sprintf(format, a...)
-		s = strings.Replace(s, "\r", "", -1)
-		s = strings.Replace(s, "\n", "\r\n", -1)
+		s = strings.Replace(s, CRchar, "", -1)
+		s = strings.Replace(s, LFchar, NewLine, -1)
 
 		fmt.Fprintf(w, s)
 		return
