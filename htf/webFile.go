@@ -17,7 +17,6 @@ package htf
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -128,9 +127,6 @@ func (fl *DownloadFilesInfo) GetFileInfo(FileName string) (*DownloadFileInfo, er
 			}
 
 			f.Changed = (f.Web.Size != f.Loc.Size) || (f.Loc.Time != f.Web.Time)
-
-			fmt.Printf("\nwebFile: %d %v\n", f.Web.Size, f.Web.Time)
-			fmt.Printf("locFile: %d %v, changed=%v\n", f.Loc.Size, f.Loc.Time, f.Changed)
 
 			return &f, nil
 		}
