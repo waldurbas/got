@@ -199,8 +199,8 @@ func urlDownloadListFile(url string) (string, error) {
 }
 
 // Chmod #
-func Chmod(name string, m uint32) error {
-	return os.Chmod(name, fs.FileMode(m))
+func Chmod(name string, m fs.FileMode) error {
+	return os.Chmod(name, m)
 }
 
 // RemoveOldFile #
