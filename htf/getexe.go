@@ -40,5 +40,7 @@ func GetExecutable(url string, dir string) (bool, error) {
 		os.Remove(oFile)
 	}
 
+	Chmod(xFile, 0755)
+
 	return true, nil
 }
