@@ -19,18 +19,38 @@ import (
 	"path"
 )
 
+func GetFile(url string, dir string, xFile string, locFile string) (bool, error) {
+	f, err := GetDownloadFilesInfo(url + "/" + dir)
+
+	if err != nil {
+		return false, err
+	}
+
+	fi, err := f.GetFileInfo(xFile)
+	if err != nil {
+		return false, err
+	}
+
+	if !fi.Changed {
+		return false, nil
+	}
+
+	// download to nFile
+	err = fi.Download(locFile)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
 // GetExecuTable #
 func GetExecutable(url string, dir string) (bool, error) {
 	xFile, _ := os.Executable()
-	return GetFile(url, dir, xFile, 0755)
-
-}
-
-// GetFile #
-func GetFile(url string, dir string, xFile string, perm uint32) (bool, error) {
 	ext := path.Ext(xFile)
 	oFile := xFile[0:len(xFile)-len(ext)] + ".old"
 	nFile := xFile[0:len(xFile)-len(ext)] + ".new"
+
 	RemoveFile(oFile)
 	RemoveFile(nFile)
 
@@ -74,7 +94,7 @@ func GetFile(url string, dir string, xFile string, perm uint32) (bool, error) {
 	}
 
 	if FileExists(xFile) {
-		Chmod(xFile, perm)
+		Chmod(xFile, 0755)
 		RemoveFile(oFile)
 	}
 
