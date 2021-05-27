@@ -44,9 +44,8 @@ func GetFile(url string, dir string, xFile string, locFile string) (bool, error)
 	return true, nil
 }
 
-// GetExecuTable #
-func GetExecutable(url string, dir string) (bool, error) {
-	xFile, _ := os.Executable()
+// GetExecutableFile #
+func GetExecutableFile(url string, dir string, xFile string) (bool, error) {
 	ext := path.Ext(xFile)
 	oFile := xFile[0:len(xFile)-len(ext)] + ".old"
 	nFile := xFile[0:len(xFile)-len(ext)] + ".new"
@@ -99,4 +98,11 @@ func GetExecutable(url string, dir string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+// GetExecutable #
+func GetExecutable(url string, dir string) (bool, error) {
+	xFile, _ := os.Executable()
+
+	return GetExecutableFile(url, dir, xFile)
 }
