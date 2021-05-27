@@ -221,12 +221,9 @@ func RemoveFile(filename string) {
 }
 
 // RenameFile
-func RenameFile(aFile string, oFile string) error {
+func RenameFile(aFile string, nFile string) error {
 	if FileExists(aFile) {
-		err := os.Rename(aFile, oFile)
-		if err != nil {
-			return err
-		}
+		return os.Rename(aFile, nFile)
 	}
 
 	return nil
