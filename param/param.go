@@ -160,6 +160,11 @@ func CheckVersion() bool {
 
 }
 
+// ToUpdate #
+func ToUpdate() bool {
+	return strings.ToLower(Value("u", "")) == "pdate" || KeyExist("update")
+}
+
 // PrintParams #
 func PrintParams() string {
 
