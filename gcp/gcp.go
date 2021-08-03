@@ -2,7 +2,7 @@ package gcp
 
 // ----------------------------------------------------------------------------------
 // gcp.go (https://github.com/waldurbas/got) access to googlecloud
-// Copyright 2019,2020 by Waldemar Urbas
+// Copyright 2019,2021 by Waldemar Urbas
 //-----------------------------------------------------------------------------------
 // This Source Code Form is subject to the terms of the 'MIT License'
 // A short and simple permissive license with conditions only requiring
@@ -11,6 +11,7 @@ package gcp
 // ----------------------------------------------------------------------------------
 // HISTORY
 //-----------------------------------------------------------------------------------
+// 2021.08.03 (wu) bugfix FileRead:ob.Attrs(ctx)
 // 2020.09.20 (wu) Init
 //-----------------------------------------------------------------------------------
 
@@ -362,7 +363,10 @@ func (b *GCPbucket) FileRead(filePath string) (*[]byte, time.Time, string, error
 	}
 	defer rc.Close()
 
-	at, _ := ob.Attrs(ctx)
+	at, e := ob.Attrs(ctx)
+	if e != nil {
+		return nil, rt, "", err
+	}
 	rt = at.CustomTime
 
 	data, err := ioutil.ReadAll(rc)
