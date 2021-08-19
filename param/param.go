@@ -34,22 +34,25 @@ var glo globalData
 
 // init: wird automatisch aufgerufen
 func init() {
+	InitParams(os.Args)
+}
+
+func InitParams(args []string) {
 	glo.xargs = make(map[string]string)
 
 	var prev string
-	for _, v := range os.Args[1:] {
-		//		fmt.Printf("\narg: [%v]", v)
-		if v[0] == '-' || v[0] == '/' {
+	for _, v := range args[1:] {
+		eqIndex := strings.Index(v, "=")
+		if v[0] == '-' || eqIndex > 0 || (v[0] == '/' && strings.Count(v, "/") == 1) {
 			prev = strings.ToLower(v[1:2])
 
-			if prev == "q" || ((prev == "x" || prev == "u") && len(v) > 2 && strings.Index(v, "=") < 0) {
+			if prev == "q" || ((prev == "x" || prev == "u") && len(v) > 2 && eqIndex < 0) {
 				glo.xargs[prev] = v[2:]
 			} else {
-				ix := strings.Index(v, "=")
 				prev = ""
-				if ix > 0 {
-					prev = strings.ToLower(v[1:ix])
-					glo.xargs[prev] = v[ix+1:]
+				if eqIndex > 0 {
+					prev = strings.ToLower(v[1:eqIndex])
+					glo.xargs[prev] = v[eqIndex+1:]
 				} else {
 					prev = strings.ToLower(v[1:])
 					glo.xargs[prev] = ""
@@ -167,7 +170,6 @@ func ToUpdate() bool {
 
 // PrintParams #
 func PrintParams() string {
-
 	s := fmt.Sprintln("\n--> xParams:")
 	for i, v := range glo.xargsWithOut {
 		s += fmt.Sprintf("%d. [%s]\n", i, v)
