@@ -418,9 +418,12 @@ func toUTF8(s string) string {
 
 	buf := make([]rune, len(bIso8859Eins))
 	for i, b := range bIso8859Eins {
-		if b == 0x80 {
+		switch b {
+		case 0x80:
 			buf[i] = '€'
-		} else {
+		case 0xBD:
+			buf[i] = '½'
+		default:
 			buf[i] = rune(b)
 		}
 	}

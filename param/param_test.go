@@ -23,8 +23,12 @@ import (
 
 func Test_Init(t *testing.T) {
 	fmt.Println("Test_Initp")
-	e := []string{"prg", "/usr/wald/x.pas", "/235/328", "-pic=20", "/d", "/all=/abc/"}
+	e := []string{"prg", "/usr/wald/x.pas", "/235/328", "-pic=20", "/d", "/all=/abc/", "-nopic"}
 	param.InitParams(e)
 
 	param.Print()
+
+	param.ValueCheck("nopic", "1")
+	param.Print()
+
 }
