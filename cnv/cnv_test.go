@@ -20,7 +20,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/waldurbas/got/cnv"
+	"github.com/waldurbas/cnv"
 )
 
 func Test_checkTimeDif(t *testing.T) {

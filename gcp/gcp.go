@@ -26,7 +26,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/storage"
-	"github.com/waldurbas/got/cnv"
+	"github.com/waldurbas/cnv"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/compute/v1"
 	"google.golang.org/api/iterator"
