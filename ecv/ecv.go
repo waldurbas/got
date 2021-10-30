@@ -77,6 +77,7 @@ func init() {
 	for i := 0; i < 256; i++ {
 		iso8859run[i] = rune(i)
 	}
+
 	iso8859run[0xc2] = 0
 	iso8859run[0x80] = '€'
 	iso8859run[0xa9] = '©'
