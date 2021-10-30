@@ -27,7 +27,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/waldurbas/lgx"
+	"github.com/waldurbas/got/lgx"
 )
 
 // HtReq #

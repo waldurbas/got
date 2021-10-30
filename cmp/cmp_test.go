@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/waldurbas/cmp"
+	"github.com/waldurbas/got/cmp"
 )
 
 func Test_StrXcmp(t *testing.T) {
