@@ -73,6 +73,7 @@ type EcvField struct {
 
 var iso8859run [256]rune
 
+// init routine
 func init() {
 	for i := 0; i < 256; i++ {
 		iso8859run[i] = rune(i)
