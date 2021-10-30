@@ -46,6 +46,30 @@ const (
 var LocUTC, _ = time.LoadLocation("UTC")
 var LocLOC, _ = time.LoadLocation("Local")
 
+var iso8859run [256]rune
+
+func init() {
+	for i := 0; i < 256; i++ {
+		iso8859run[i] = rune(i)
+	}
+	iso8859run[0xc2] = 0
+	iso8859run[0x80] = '€'
+	iso8859run[0xa9] = '©'
+	iso8859run[0xab] = '«'
+	iso8859run[0xae] = '®'
+	iso8859run[0xbb] = '»'
+	iso8859run[0xbc] = '¼'
+	iso8859run[0xbd] = '½'
+	iso8859run[0xbe] = '¾'
+	iso8859run[0xc4] = 'Ä'
+	iso8859run[0xd6] = 'Ö'
+	iso8859run[0xdc] = 'Ü'
+	iso8859run[0xdf] = 'ß'
+	iso8859run[0xe4] = 'ä'
+	iso8859run[0xf6] = 'ö'
+	iso8859run[0xfc] = 'ü'
+}
+
 // RfillStr #
 func RfillStr(s, ch string, le int) string {
 	for {
@@ -618,18 +642,18 @@ func Md5HexString(b *[]byte) string {
 
 // ToUTF8 #ISO8859_1 to UTF8
 func ToUTF8(s string) string {
-
 	iso8859Buf := []byte(s)
 
 	buf := make([]rune, len(iso8859Buf))
-	for i, b := range iso8859Buf {
-		if b == 0x80 {
-			buf[i] = '€'
-		} else {
-			buf[i] = rune(b)
+	a := 0
+	for i := 0; i < len(iso8859Buf); i++ {
+		buf[a] = iso8859run[iso8859Buf[i]]
+		if buf[a] > 0 {
+			a++
 		}
 	}
-	return string(buf)
+
+	return string(buf[:a])
 }
 
 // ToAnsi #UTF8 to ANSI

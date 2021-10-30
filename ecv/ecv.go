@@ -71,6 +71,30 @@ type EcvField struct {
 	Typ  EcvType
 }
 
+var iso8859run [256]rune
+
+func init() {
+	for i := 0; i < 256; i++ {
+		iso8859run[i] = rune(i)
+	}
+	iso8859run[0xc2] = 0
+	iso8859run[0x80] = '€'
+	iso8859run[0xa9] = '©'
+	iso8859run[0xab] = '«'
+	iso8859run[0xae] = '®'
+	iso8859run[0xbb] = '»'
+	iso8859run[0xbc] = '¼'
+	iso8859run[0xbd] = '½'
+	iso8859run[0xbe] = '¾'
+	iso8859run[0xc4] = 'Ä'
+	iso8859run[0xd6] = 'Ö'
+	iso8859run[0xdc] = 'Ü'
+	iso8859run[0xdf] = 'ß'
+	iso8859run[0xe4] = 'ä'
+	iso8859run[0xf6] = 'ö'
+	iso8859run[0xfc] = 'ü'
+}
+
 // Open #
 func (t *EcvTable) Open() bool {
 	if t.Count == 0 {
@@ -417,15 +441,29 @@ func toUTF8(s string) string {
 	bIso8859Eins := []byte(s)
 
 	buf := make([]rune, len(bIso8859Eins))
-	for i, b := range bIso8859Eins {
-		switch b {
-		case 0x80:
-			buf[i] = '€'
-		case 0xBD:
-			buf[i] = '½'
-		default:
-			buf[i] = rune(b)
+	a := 0
+	for i := 0; i < len(bIso8859Eins); i++ {
+		buf[a] = iso8859run[bIso8859Eins[i]]
+		if buf[a] > 0 {
+			a++
 		}
 	}
-	return string(buf)
+
+	/*
+		b := bIso8859Eins[i]
+		switch b {
+		case 0xc2:
+		case 0x80:
+			buf[a] = '€'
+			a++
+		case 0xbd:
+			buf[a] = '½'
+			a++
+		default:
+			buf[a] = rune(b)
+			a++
+		}
+	*/
+
+	return string(buf[:a])
 }
