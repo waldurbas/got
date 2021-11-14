@@ -9,7 +9,7 @@ package cnv
 // preservation of copyright and license notices.  Licensed works, modifications,
 // and larger works may be distributed under different terms and without source code.
 // ----------------------------------------------------------------------------------
-// 2021.11.14 (wu) add Printf
+// 2021.11.14 (wu) add Printf-function
 // ----------------------------------------------------------------------------------
 
 import (
