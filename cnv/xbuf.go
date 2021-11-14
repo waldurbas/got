@@ -2,12 +2,14 @@ package cnv
 
 // ----------------------------------------------------------------------------------
 // xBuf.go for Go's cnv package (https://github.com/waldurbas/got)
-// Copyright 2019,2020 by Waldemar Urbas
+// Copyright 2019,2021 by Waldemar Urbas
 //-----------------------------------------------------------------------------------
 // This Source Code Form is subject to the terms of the 'MIT License'
 // A short and simple permissive license with conditions only requiring
 // preservation of copyright and license notices.  Licensed works, modifications,
 // and larger works may be distributed under different terms and without source code.
+// ----------------------------------------------------------------------------------
+// 2021.11.14 (wu) add Printf
 // ----------------------------------------------------------------------------------
 
 import (
@@ -72,6 +74,7 @@ func (b *Buffer) WriteLine(s string) (n int, err error) {
 	return b.WriteString(s + string(byte(10)))
 }
 
+// Printf #
 func (b *Buffer) Printf(frm string, v ...interface{}) {
 	b.WriteString(fmt.Sprintf(frm, v...))
 }
