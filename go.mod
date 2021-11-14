@@ -1,12 +1,11 @@
-module wux/got
+module github.com/waldurbas/got
 
 go 1.17
 
 require (
 	cloud.google.com/go/storage v1.18.2
 	github.com/google/uuid v1.3.0
-	github.com/waldurbas/got v1.9.73
-	golang.org/x/oauth2 v0.0.0-20211028175245-ba495a64dcb5
+	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
 	google.golang.org/api v0.60.0
 )
 
