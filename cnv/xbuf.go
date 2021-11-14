@@ -72,6 +72,10 @@ func (b *Buffer) WriteLine(s string) (n int, err error) {
 	return b.WriteString(s + string(byte(10)))
 }
 
+func (b *Buffer) Printf(frm string, v ...interface{}) {
+	b.WriteString(fmt.Sprintf(frm, v...))
+}
+
 // ReadLine #
 func (b *Buffer) ReadLine(line *string) (err error) {
 	slice, err := b.readSlice(byte(10))
