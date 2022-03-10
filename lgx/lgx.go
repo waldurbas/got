@@ -2,7 +2,7 @@ package lgx
 
 // ----------------------------------------------------------------------------------
 // lgx.go (https://github.com/waldurbas/got)
-// Copyright 2019,2021 by Waldemar Urbas
+// Copyright 2019,2022 by Waldemar Urbas
 //-----------------------------------------------------------------------------------
 // This Source Code Form is subject to the terms of the 'MIT License'
 // A short and simple permissive license with conditions only requiring
@@ -11,6 +11,7 @@ package lgx
 // ----------------------------------------------------------------------------------
 // HISTORY
 //-----------------------------------------------------------------------------------
+// 2022.03.10 (wu) PathJoinSep
 // 2020.03.30 (wu) SetVersion
 //                 ab go 1.16 funktioniert -ldflags "-X lgx.xVersion=$Version" nicht mehr ??
 // 2020.03.24 (wu) func Write kompatibel mit io.Writer
@@ -379,7 +380,10 @@ func PathDir(path string) string {
 
 // PathJoin # path.Join ist falsch fuer Windows
 func PathJoin(elem ...string) string {
-	ps := string(os.PathSeparator)
+	return PathJoinSep(string(os.PathSeparator), elem...)
+}
+
+func PathJoinSep(ps string, elem ...string) string {
 	s := ""
 	for _, e := range elem {
 		lx := len(s)
