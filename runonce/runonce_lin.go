@@ -14,7 +14,7 @@ import (
 )
 
 // TryLock #
-func (r *RunOnce) Trylock() error {
+func (r *RunOnce) TryLock() error {
 	f, err := os.OpenFile(r.LockFname(), os.O_RDWR|os.O_CREATE, 0600)
 	if err != nil {
 		return err
