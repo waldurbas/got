@@ -41,5 +41,5 @@ package jwt
 
 ## run one instance
 ```
-package flock
+package runonce
 ```
