@@ -1,7 +1,7 @@
 # GOT gotools
 
 ```
-2019-2020 by Waldemar Urbas
+2019-2022 by Waldemar Urbas
 ```
 
 ## Log-Funktionen
@@ -37,4 +37,9 @@ package gcp
 ## JSON WEB TOKEN
 ```
 package jwt
+```
+
+## run one instance
+```
+package flock
 ```
