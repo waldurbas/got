@@ -213,8 +213,15 @@ func (p *Lgx) _write(s string) string {
 	}
 
 	if p.out != nil {
-		NewLinePrinted = p.buf[len(p.buf)] == '\n'
+		le := len(p.buf)
+		if le > 0 && !NewLinePrinted {
+			p.out.Write([]byte(NewLine))
+		}
+
 		p.out.Write(p.buf)
+		if le > 0 {
+			NewLinePrinted = p.buf[le-1] == 10
+		}
 	}
 
 	if (p.prop & LgxFile) == LgxFile {
