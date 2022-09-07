@@ -51,9 +51,10 @@ var (
 	PrgName string
 
 	// NewLine
-	NewLine string
-	CRchar  string
-	LFchar  string
+	NewLine        string
+	CRchar         string
+	LFchar         string
+	NewLinePrinted bool
 )
 
 // Lgx #
@@ -157,6 +158,7 @@ func (p *Lgx) _write(s string) string {
 	le := len(s)
 	addNL := le == 0
 	noNL := false
+
 	if !addNL && s[le-1] != '\n' {
 		addNL = true
 	}
@@ -211,6 +213,7 @@ func (p *Lgx) _write(s string) string {
 	}
 
 	if p.out != nil {
+		NewLinePrinted = p.buf[len(p.buf)] == '\n'
 		p.out.Write(p.buf)
 	}
 
