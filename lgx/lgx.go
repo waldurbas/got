@@ -55,6 +55,7 @@ var (
 	CRchar         string
 	LFchar         string
 	NewLinePrinted bool
+	LinePfx        string
 )
 
 // Lgx #
@@ -193,6 +194,14 @@ func (p *Lgx) _write(s string) string {
 
 		if withTime {
 			p.buf = append(p.buf, sti...)
+		}
+
+		lx := len(LinePfx)
+		if lx > 0 && lx < 7 {
+			if LinePfx[lx-1] != ' ' {
+				LinePfx = LinePfx + " "
+			}
+			p.buf = append(p.buf, LinePfx...)
 		}
 
 		if le > 0 {
@@ -462,6 +471,7 @@ func printOut(w io.Writer, format string, v ...interface{}) {
 // PrintNL #
 func PrintNL() {
 	Fprintf(std.out, NewLine)
+	NewLinePrinted = true
 }
 
 // PrintStderr #
