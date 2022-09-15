@@ -42,21 +42,24 @@ func InitParams(args []string) {
 
 	var prev string
 	for _, v := range args[1:] {
+		if len(v) > 1 && v[0] == '-' && v[1] == '-' {
+			v = v[1:]
+		}
+
 		eqIndex := strings.Index(v, "=")
 		if v[0] == '-' || eqIndex > 0 || (v[0] == '/' && strings.Count(v, "/") == 1) {
 			prev = strings.ToLower(v[1:2])
 
 			if prev == "q" || ((prev == "x" || prev == "u") && len(v) > 2 && eqIndex < 0) {
 				glo.xargs[prev] = v[2:]
+			}
+
+			if eqIndex > 0 {
+				prev = strings.ToLower(v[1:eqIndex])
+				glo.xargs[prev] = v[eqIndex+1:]
 			} else {
-				prev = ""
-				if eqIndex > 0 {
-					prev = strings.ToLower(v[1:eqIndex])
-					glo.xargs[prev] = v[eqIndex+1:]
-				} else {
-					prev = strings.ToLower(v[1:])
-					glo.xargs[prev] = ""
-				}
+				prev = strings.ToLower(v[1:])
+				glo.xargs[prev] = ""
 			}
 		} else {
 			glo.xargsWithOut = append(glo.xargsWithOut, v)
