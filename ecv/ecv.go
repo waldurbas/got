@@ -2,7 +2,7 @@ package ecv
 
 // ----------------------------------------------------------------------------------
 // ecv.go (https://github.com/waldurbas/ecv)
-// Copyright 2019,2021 by Waldemar Urbas
+// Copyright 2019,2022 by Waldemar Urbas
 //-----------------------------------------------------------------------------------
 // This Source Code Form is subject to the terms of the 'MIT License'
 // A short and simple permissive license with conditions only requiring
@@ -11,12 +11,14 @@ package ecv
 // ----------------------------------------------------------------------------------
 // HISTORY
 //-----------------------------------------------------------------------------------
+// 2022.11.24 ecvTable.AsLine, AsInt64
 // 2021.02.11 EcvFile.Count, GetTable,NewEcvFile
 // 2019.05.20 Init
 //-----------------------------------------------------------------------------------
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"sort"
 	"strconv"
@@ -59,7 +61,7 @@ const (
 	EcvStr
 )
 
-//ecv-Entry
+// ecv-Entry
 type ecvEntry struct {
 	F []string
 }
@@ -143,6 +145,18 @@ func (t *EcvTable) IfieldByName(s string) int {
 	return t.AsInteger(fix)
 }
 
+// I64fieldByName #
+func (t *EcvTable) I64fieldByName(s string) int64 {
+	fix := t.IndexOf[s]
+	return t.AsInt64(fix)
+}
+
+// Ui64fieldByName #
+func (t *EcvTable) Ui64fieldByName(s string) uint64 {
+	fix := t.IndexOf[s]
+	return t.AsuInt64(fix)
+}
+
 // SfieldByName #
 func (t *EcvTable) SfieldByName(s string) string {
 	fix := t.IndexOf[s]
@@ -160,6 +174,34 @@ func (t *EcvTable) AsInteger(fix int) int {
 	return 0
 }
 
+// AsInt64 #
+func (t *EcvTable) AsInt64(fix int) int64 {
+	if fix >= 0 && len(*t.curFields) > fix {
+		s := fmt.Sprintf("%v", (*t.curFields)[fix])
+		v, e := strconv.ParseInt(s, 10, 64)
+		if e != nil {
+			return 0
+		}
+		return v
+	}
+
+	return 0
+}
+
+// AsuInt64 #
+func (t *EcvTable) AsuInt64(fix int) uint64 {
+	if fix >= 0 && len(*t.curFields) > fix {
+		s := fmt.Sprintf("%v", (*t.curFields)[fix])
+		v, e := strconv.ParseUint(s, 10, 64)
+		if e != nil {
+			return 0
+		}
+		return v
+	}
+
+	return 0
+}
+
 // AsString #
 func (t *EcvTable) AsString(fix int) string {
 	if fix >= 0 && len(*t.curFields) > fix {
@@ -167,6 +209,19 @@ func (t *EcvTable) AsString(fix int) string {
 	}
 
 	return ""
+}
+
+func (t *EcvTable) AsLine(withNL bool) string {
+	s := (*t.curFields)[0]
+	for i := 1; i < len(t.Fields); i++ {
+		s = s + "^" + (*t.curFields)[i]
+	}
+
+	if withNL {
+		return s + "\n"
+	}
+
+	return s
 }
 
 // IsNull #
