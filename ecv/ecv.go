@@ -129,6 +129,16 @@ func (t *EcvTable) First() bool {
 	return t.checkLine(0)
 }
 
+// Prev #
+func (t *EcvTable) Prev() bool {
+	ipos := t.CurrentPos - 1
+	if ipos < 0 {
+		ipos = 0
+	}
+
+	return t.checkLine(ipos)
+}
+
 // Fetch #
 func (t *EcvTable) Fetch() bool {
 	if t.checkLine(t.CurrentPos) {
