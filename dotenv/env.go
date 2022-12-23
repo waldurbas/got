@@ -18,12 +18,19 @@ package dotenv
 import (
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
 // Load #
 func Load() {
-	fname := ".env"
+	ex, err := os.Executable()
+	if err != nil {
+		return
+	}
+
+	exPath := filepath.Dir(ex)
+	fname := exPath + string(os.PathSeparator) + ".env"
 	b, err := ioutil.ReadFile(fname)
 
 	if err != nil {
